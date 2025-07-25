@@ -9,6 +9,7 @@ const Home: NextPage = () => {
     <>
       <Header />
       <main className="pt-20">
+        
         <Hero />
         
         {/* Aquí luego About, Events, Gallery, Workshops, Contact… */}

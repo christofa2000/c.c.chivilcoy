@@ -5,8 +5,8 @@ import { Phone, MapPin } from 'lucide-react';
 export default function Contact() {
   return (
     <section id="contacto" className="py-16">
-      <div className="max-w-4xl mx-auto px-4 bg-white bg-opacity-90 rounded-lg shadow-lg backdrop-filter backdrop-blur-sm">
-        <h2 className="text-3xl font-bold text-center text-violet-900 mb-8">Contacto</h2>
+      <div className="max-w-4xl mx-auto px-4 bg-black/50 rounded-lg shadow-lg backdrop-filter backdrop-blur-sm">
+        <h2 className="text-4xl font-bold text-center text-white mb-8 py-3">Contacto</h2>
 
         <form
           action="https://formspree.io/f/mnnzprlk"
@@ -50,14 +50,14 @@ export default function Contact() {
 
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
           <div className="flex items-center mb-4 sm:mb-0">
-            <Phone className="w-6 h-6 text-pink-600 mr-2" />
-            <a href="tel:+5492345XXXXXX" className="hover:text-pink-600 text-gray-800">
+            <Phone className="w-6 h-6 text-white mr-2" />
+            <a href="tel:+5492345XXXXXX" className="hover:text-pink-600 text-white">
               +54 9 2345 XXXXXX
             </a>
           </div>
           <div className="flex items-center">
-            <MapPin className="w-6 h-6 text-pink-600 mr-2" />
-            <span className="text-gray-800">Chivilcoy 3051, C1417 Cdad. Autónoma de Buenos Aires.</span>
+            <MapPin className="w-6 h-6 text-white mr-2" />
+            <span className=" text-white">Chivilcoy 3051, C1417 Cdad. Autónoma de Buenos Aires.</span>
           </div>
         </div>
 

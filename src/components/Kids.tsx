@@ -1,7 +1,7 @@
 "use client";
-import React from 'react';
+import React, { useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 
-// Define aquí tus actividades junto con la ruta a la imagen y detalles de "más info"
 const activities = [
   { id: 1, name: 'Canto/Guitarra', img: '/images/kids/canto-guitarra.jpg', info: 'Aquí irá el texto de más info para Canto/Guitarra.' },
   { id: 2, name: 'Teatro Infantil', img: '/images/kids/teatro-infantil.jpg', info: 'Aquí irá el texto de más info para Teatro Infantil.' },
@@ -12,8 +12,24 @@ const activities = [
   { id: 7, name: 'Yoga Infantil', img: '/images/kids/yoga-infantil.jpg', info: 'Aquí irá el texto de más info para Yoga Infantil.' },
 ];
 
-export default function Kids() {
-  const [selected, setSelected] = React.useState<number | null>(null);
+export default function KidsCarousel() {
+  const [selected, setSelected] = useState<number | null>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<Array<HTMLDivElement | null>>([]);
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (!carouselRef.current) return;
+    const width = carouselRef.current.clientWidth;
+    carouselRef.current.scrollBy({ left: direction === 'left' ? -width : width, behavior: 'smooth' });
+  };
+
+  const handleSelect = (id: number, index: number) => {
+    setSelected(id);
+    const item = itemRefs.current[index];
+    if (item) {
+      item.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+  };
 
   return (
     <section
@@ -21,33 +37,69 @@ export default function Kids() {
       className="py-16 bg-fixed bg-cover bg-center"
       style={{ backgroundImage: "url('/images/patio3.jpg')" }}
     >
-      {/* Contenedor con mismo estilo que sección Contacto */}
-      <div className="max-w-4xl mx-auto px-4 bg-white bg-opacity-90 rounded-lg shadow-lg backdrop-filter backdrop-blur-sm">
-        <h2 className="text-3xl font-bold text-center text-violet-900 mb-8">Kids</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {activities.map((activity) => (
-            <div
-              key={activity.id}
-              className="group flex flex-col bg-white p-6 rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300"
-            >
-              <img
-                src={activity.img}
-                alt={activity.name}
-                className="w-full h-40 object-cover rounded-md mb-4 transform group-hover:scale-105 transition-transform duration-500"
-              />
-              <h3 className="text-xl font-semibold mb-2 text-gray-900">{activity.name}</h3>
-              <button
-                onClick={() => setSelected(activity.id)}
-                className="mt-auto text-violet-900 hover:underline"
-              >
-                Más info
-              </button>
+      <div className="max-w-6xl mx-auto px-4 bg-black/50 backdrop-blur-md rounded-2xl shadow-2xl">
+        <h2 className="text-5xl font-extrabold text-center text-amber-50 mb-8 uppercase tracking-wide">
+          Kids
+        </h2>
 
-              {selected === activity.id && (
-                <p className="mt-4 text-gray-800">{activity.info}</p>
-              )}
-            </div>
-          ))}
+        <div className="relative">
+          <button
+            onClick={() => scroll('left')}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-white/70 p-3 rounded-full shadow-lg hover:bg-white transition"
+            aria-label="Anterior"
+          >
+            &#10094;
+          </button>
+
+          <motion.div
+            ref={carouselRef}
+            className="flex gap-6 overflow-x-hidden overflow-y-hidden scroll-smooth py-4 px-6"
+          >
+            {activities.map((activity, index) => (
+              <motion.div
+                key={activity.id}
+                ref={el => { itemRefs.current[index] = el; }}
+                onClick={() => handleSelect(activity.id, index)}
+                animate={{ scale: selected === activity.id ? 1.15 : 1 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                className={`cursor-pointer select-none \
+                  ${selected === activity.id ? 'min-w-[400px]' : 'min-w-[240px]'} \
+                  flex-shrink-0 bg-gradient-to-br from-white/80 to-white/50 p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-shadow duration-300`}
+              >
+                <img
+                  src={activity.img}
+                  alt={activity.name}
+                  className="w-full h-36 object-cover rounded-lg mb-4"
+                />
+                <h3 className="text-2xl font-semibold mb-2 text-gray-900">
+                  {activity.name}
+                </h3>
+                <button
+                  onClick={() => handleSelect(activity.id, index)}
+                  className="mt-auto text-purple-700 font-medium hover:underline"
+                >
+                  Más info
+                </button>
+                {selected === activity.id && (
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="mt-4 text-gray-800 leading-relaxed"
+                  >
+                    {activity.info}
+                  </motion.p>
+                )}
+              </motion.div>
+            ))}
+          </motion.div>
+
+          <button
+            onClick={() => scroll('right')}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-white/70 p-3 rounded-full shadow-lg hover:bg-white transition"
+            aria-label="Siguiente"
+          >
+            &#10095;
+          </button>
         </div>
       </div>
     </section>
