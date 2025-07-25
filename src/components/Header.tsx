@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export default function Header() {
   const [open, setOpen] = useState(false);
-  const menuItems = ['Inicio', 'Eventos', 'Clases', 'Talleres', 'Colonias', 'Contacto'];
+  const menuItems = ['Inicio', 'Kids', 'Clases', 'Talleres', 'Colonias', 'Contacto'];
 
   return (
     <header className="fixed w-full bg-violet-600 shadow-lg z-50">

@@ -1,7 +1,7 @@
 import Header from '../components/Header';
 import Hero   from '../components/Hero';
-import Events from '../components/Events';
 import Contact from '../components/Contact';
+import Kids from '../components/Kids';
 
 export default function Home() {
   return (
@@ -9,9 +9,11 @@ export default function Home() {
       <Header />
       <main className="pt-20">
         <Hero />
-        <Events />
+       
         {/* Other sections… */}
+        <Kids /> 
         <Contact />
+        
       </main>
     </>
   );
