@@ -1,6 +1,6 @@
 # Espacio de Arte Chivilcoy
 
-Landing page responsive de un centro cultural ficticio en Chivilcoy: exposiciones, clases y talleres artísticos.
+Landing page responsive de un centro cultural en Chivilcoy: exposiciones, clases y talleres artísticos.
 
 ---
 
@@ -8,6 +8,7 @@ Landing page responsive de un centro cultural ficticio en Chivilcoy: exposicione
 
 * [Descripción](#descripción)
 * [Características](#características)
+* [Secciones Implementadas](#secciones-implementadas)
 * [Tecnologías](#tecnologías)
 * [Instalación](#instalación)
 * [Uso](#uso)
@@ -26,7 +27,7 @@ Esta landing page para **Espacio de Arte Chivilcoy** muestra:
 * Sección *Hero* con imagen de fondo y texto de bienvenida.
 * Sección de *Próximos Eventos* en carrusel horizontal.
 * Formulario de *Contacto* integrable con Formspree (envío directo a tu email).
-* Icons de teléfono y ubicación, y mapa de Google en `iframe`.
+* Íconos de teléfono y ubicación, y mapa de Google en `iframe`.
 
 El diseño es **mobile-first**, con Tailwind CSS y Next.js 13 (App Router).
 
@@ -40,6 +41,17 @@ El diseño es **mobile-first**, con Tailwind CSS y Next.js 13 (App Router).
 * Formulario de contacto (`Formspree`) sin backend propio.
 * Mapa de ubicación embebido.
 * Accesibilidad básica (contraste, `alt` en imágenes).
+* **Carousel interactivo** para mostrar actividades de Kids, Talleres y Clases.
+* **Toggle Pills** para la sección Colonia con modalidades Verano e Invierno.
+
+---
+
+## 🗂 Secciones Implementadas
+
+1. **Kids**: Carrusel horizontal con actividades infantiles (Canto/Guitarra, Teatro, Teclado, Danza, Urbano Kids, Arte y Juego, Yoga Infantil), con zoom y centrado al seleccionar.
+2. **Talleres**: Carrusel personalizado para listados de talleres (Teatro, Arte, Dibujo, Hatha Yoga, Canto) con estilo moderno y agrandado al click.
+3. **Clases**: Carrusel análogo para clases de baile y artes marciales (Bachata, Folclore, Salsa, Artes Marciales, Baile y Movimiento).
+4. **Colonia**: Toggle de dos opciones (Verano e Invierno) que despliega una card centrada con imagen e información.
 
 ---
 
@@ -49,6 +61,7 @@ El diseño es **mobile-first**, con Tailwind CSS y Next.js 13 (App Router).
 * **React** y **TypeScript**
 * **Tailwind CSS**
 * **Lucide React** (íconos)
+* **Framer Motion** (animaciones)
 * **Formspree** (procesamiento de formularios)
 * **Google Maps Embed**
 
@@ -98,9 +111,17 @@ espacio-arte-chivilcoy/
 │  ├─ globals.css     # CSS global y configuración de Tailwind
 │  ├─ layout.tsx      # RootLayout con degradado de fondo
 │  └─ page.tsx        # Página principal (imports de secciones)
-├─ components/        # Componentes React (Header, Hero, Events, Contact…)
+├─ components/        # Componentes React
+│  ├─ Header.tsx
+│  ├─ Hero.tsx
+│  ├─ EventsCarousel.tsx
+│  ├─ Contact.tsx
+│  ├─ KidsCarousel.tsx        # Carrusel de actividades Kids
+│  ├─ TalleresCarousel.tsx    # Carrusel de Talleres
+│  ├─ ClasesCarousel.tsx      # Carrusel de Clases
+│  └─ ColoniaToggle.tsx       # Toggle de Colonia (Verano/Invierno)
 ├─ public/
-│  ├─ events/         # Imágenes usadas en Eventos y Hero
+│  ├─ images/         # Imágenes usadas en secciones (kids, talleres, clases, colonia)
 │  └─ fondo-arbol.jpg # Imagen de fondo Hero
 ├─ styles/            # (si se mantiene carpeta de estilos extra)
 ├─ .gitignore
@@ -119,7 +140,7 @@ Puedes desplegar fácilmente en **Vercel** o **Netlify**:
 1. Conecta tu repo GitHub.
 2. Configura el comando de build: `npm run build`.
 3. Ruta de salida: `.next`.
-4. Opcional: añade variable de entorno `NEXT_PUBLIC_FORMSPREE_ID` si usas env.
+4. Añade variable de entorno `NEXT_PUBLIC_FORMSPREE_ID` si usas env.
 
 ---
 
@@ -133,7 +154,4 @@ Puedes desplegar fácilmente en **Vercel** o **Netlify**:
 
 ---
 
-## 📄 Licencia
 
-Este proyecto está bajo licencia MIT.
-Consulta el archivo `LICENSE` para más detalles.

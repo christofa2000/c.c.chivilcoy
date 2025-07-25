@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export default function Header() {
   const [open, setOpen] = useState(false);
-  const menuItems = ['Inicio', 'Kids', 'Clases', 'Talleres', 'Colonias', 'Contacto'];
+  const menuItems = ['Inicio', 'Clases', 'Talleres','Kids', 'Colonia', 'Contacto'];
 
   return (
     <header className="fixed w-full bg-violet-600 shadow-lg z-50">
@@ -49,12 +49,12 @@ export default function Header() {
               {section}
             </Link>
           ))}
-          <Link
+          {/* <Link
             href="#eventos"
             className="mt-2 lg:mt-0 lg:ml-4 inline-block px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700"
           >
             Próximo Evento
-          </Link>
+          </Link> */}
         </nav>
       </div>
     </header>
