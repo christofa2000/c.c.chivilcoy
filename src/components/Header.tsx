@@ -1,16 +1,19 @@
-"use client";
+'use client';
 import { useState } from 'react';
 import Link from 'next/link';
 
 export default function Header() {
   const [open, setOpen] = useState(false);
-  const menuItems = ['Inicio', 'Clases', 'Talleres','Kids', 'Colonia', 'Contacto'];
+  const menuItems = ['Inicio', 'Clases', 'Talleres', 'Kids', 'Colonia', 'Contacto'];
 
   return (
-    <header className="fixed w-full bg-violet-600 shadow-lg z-50">
+    <header className="fixed w-full shadow-lg z-50" style={{ backgroundColor: '#7D3C98' }}>
       <div className="max-w-6xl mx-auto flex items-center justify-between p-4 text-white">
         {/* Logo */}
-        <Link href="/" className="text-2xl font-bold hover:text-pink-300">
+        <Link
+          href="/"
+          className="text-2xl font-bold transition-colors duration-200 hover:text-[#AD1457]"
+        >
           Espacio de Arte Chivilcoy
         </Link>
 
@@ -36,25 +39,31 @@ export default function Header() {
 
         {/* Navegación */}
         <nav
-          className={`flex flex-col lg:flex-row lg:items-center lg:static absolute w-full lg:w-auto left-0 lg:left-auto bg-violet-600 transition-all duration-300
+          className={`flex flex-col lg:flex-row lg:items-center lg:static absolute w-full lg:w-auto left-0 lg:left-auto transition-all duration-300
             ${open ? 'top-16 opacity-100' : 'top-[-490px] opacity-0 lg:opacity-100'}`}
+          style={{ backgroundColor: '#7D3C98' }}
         >
           {menuItems.map((section) => (
             <Link
               key={section}
               href={`#${section.toLowerCase()}`}
-              className="block px-4 py-2 lg:py-0 lg:px-3 hover:text-pink-300"
+              className="block px-4 py-2 lg:py-0 lg:px-3 transition-colors duration-200 hover:text-[#AD1457]"
               onClick={() => setOpen(false)}
             >
               {section}
             </Link>
           ))}
-          {/* <Link
+          {/*
+          <Link
             href="#eventos"
-            className="mt-2 lg:mt-0 lg:ml-4 inline-block px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700"
+            className="mt-2 lg:mt-0 lg:ml-4 inline-block px-4 py-2 text-white rounded transition-colors duration-200"
+            style={{ backgroundColor: '#AD1457' }}
+            onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#880E4F')}
+            onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#AD1457')}
           >
             Próximo Evento
-          </Link> */}
+          </Link>
+          */}
         </nav>
       </div>
     </header>

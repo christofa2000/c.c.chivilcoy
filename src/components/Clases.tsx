@@ -16,10 +16,31 @@ export default function ClasesCarousel() {
   const itemRefs = useRef<Array<HTMLDivElement | null>>([]);
 
   const scroll = (direction: 'left' | 'right') => {
-    if (!carouselRef.current) return;
-    const width = carouselRef.current.clientWidth;
-    carouselRef.current.scrollBy({ left: direction === 'left' ? -width : width, behavior: 'smooth' });
-  };
+  if (!carouselRef.current) return;
+
+  const container = carouselRef.current;
+  const scrollAmount = container.clientWidth;
+
+  if (direction === 'right') {
+    const maxScrollLeft = container.scrollWidth - container.clientWidth;
+
+    if (container.scrollLeft >= maxScrollLeft - 5) {
+      // Al final: volver al principio
+      container.scrollTo({ left: 0, behavior: 'smooth' });
+    } else {
+      container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  } else {
+    if (container.scrollLeft <= 5) {
+      // Al inicio: ir al final
+      const maxScrollLeft = container.scrollWidth - container.clientWidth;
+      container.scrollTo({ left: maxScrollLeft, behavior: 'smooth' });
+    } else {
+      container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    }
+  }
+};
+
 
   const handleSelect = (id: number, index: number) => {
     setSelected(id);
@@ -35,7 +56,7 @@ export default function ClasesCarousel() {
       className="py-16 bg-fixed bg-cover bg-center"
       style={{ backgroundImage: "url('/images/patio3.jpg')" }}
     >
-      <div className="max-w-6xl mx-auto px-4 bg-black/50 backdrop-blur-md rounded-2xl shadow-2xl">
+      <div className="max-w-6xl mx-auto px-4 bg-black/50 backdrop-blur-md rounded-2xl shadow-2xl py-6">
         <h2 className="text-5xl font-extrabold text-center text-amber-50 mb-8 uppercase tracking-wide">
           Clases
         </h2>

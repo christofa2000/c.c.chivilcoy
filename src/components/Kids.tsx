@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 const activities = [
@@ -19,16 +19,24 @@ export default function KidsCarousel() {
 
   const scroll = (direction: 'left' | 'right') => {
     if (!carouselRef.current) return;
-    const width = carouselRef.current.clientWidth;
-    carouselRef.current.scrollBy({ left: direction === 'left' ? -width : width, behavior: 'smooth' });
+    const container = carouselRef.current;
+    const scrollAmount = container.clientWidth;
+    const maxScrollLeft = container.scrollWidth - container.clientWidth;
+    if (direction === 'right') {
+      container.scrollLeft >= maxScrollLeft - 5
+        ? container.scrollTo({ left: 0, behavior: 'smooth' })
+        : container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    } else {
+      container.scrollLeft <= 5
+        ? container.scrollTo({ left: maxScrollLeft, behavior: 'smooth' })
+        : container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    }
   };
 
-  const handleSelect = (id: number, index: number) => {
+  const handleSelect = (id: number, idx: number) => {
     setSelected(id);
-    const item = itemRefs.current[index];
-    if (item) {
-      item.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-    }
+    const el = itemRefs.current[idx];
+    if (el) el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
   };
 
   return (
@@ -37,34 +45,32 @@ export default function KidsCarousel() {
       className="py-16 bg-fixed bg-cover bg-center"
       style={{ backgroundImage: "url('/images/patio3.jpg')" }}
     >
-      <div className="max-w-6xl mx-auto px-4 bg-black/50 backdrop-blur-md rounded-2xl shadow-2xl">
+      <div className="max-w-6xl mx-auto px-4 bg-black/50 backdrop-blur-md rounded-2xl shadow-2xl py-6">
         <h2 className="text-5xl font-extrabold text-center text-amber-50 mb-8 uppercase tracking-wide">
           Kids
         </h2>
-
         <div className="relative">
           <button
             onClick={() => scroll('left')}
             className="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-white/70 p-3 rounded-full shadow-lg hover:bg-white transition"
             aria-label="Anterior"
           >
-            &#10094;
+            <span className="text-gray-900 text-2xl">&#10094;</span>
           </button>
-
           <motion.div
             ref={carouselRef}
-            className="flex gap-6 overflow-x-hidden overflow-y-hidden scroll-smooth py-4 px-6"
+            className="flex gap-6 overflow-x-hidden scroll-smooth py-4 px-6"
           >
-            {activities.map((activity, index) => (
+            {activities.map((activity, idx) => (
               <motion.div
                 key={activity.id}
-                ref={el => { itemRefs.current[index] = el; }}
-                onClick={() => handleSelect(activity.id, index)}
+                ref={el => { itemRefs.current[idx] = el; }}
+                onClick={() => handleSelect(activity.id, idx)}
                 animate={{ scale: selected === activity.id ? 1.15 : 1 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                className={`cursor-pointer select-none \
-                  ${selected === activity.id ? 'min-w-[400px]' : 'min-w-[240px]'} \
-                  flex-shrink-0 bg-gradient-to-br from-white/80 to-white/50 p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-shadow duration-300`}
+                className={`cursor-pointer select-none ${
+                  selected === activity.id ? 'min-w-[400px]' : 'min-w-[240px]'
+                } flex-shrink-0 bg-gradient-to-br from-white/80 to-white/50 p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-shadow duration-300`}
               >
                 <img
                   src={activity.img}
@@ -75,7 +81,7 @@ export default function KidsCarousel() {
                   {activity.name}
                 </h3>
                 <button
-                  onClick={() => handleSelect(activity.id, index)}
+                  onClick={() => handleSelect(activity.id, idx)}
                   className="mt-auto text-purple-700 font-medium hover:underline"
                 >
                   Más info
@@ -92,13 +98,12 @@ export default function KidsCarousel() {
               </motion.div>
             ))}
           </motion.div>
-
           <button
             onClick={() => scroll('right')}
             className="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-white/70 p-3 rounded-full shadow-lg hover:bg-white transition"
             aria-label="Siguiente"
           >
-            &#10095;
+            <span className="text-gray-900 text-2xl">&#10095;</span>
           </button>
         </div>
       </div>
