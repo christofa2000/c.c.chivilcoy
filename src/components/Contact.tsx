@@ -1,152 +1,122 @@
 'use client';
-import React, { useState, useEffect } from 'react';
-import { Sun, Moon, Phone, MapPin } from 'lucide-react';
+import React from 'react';
+import { Phone, MapPin } from 'lucide-react';
 
 export default function Contact() {
-  // Empieza en modo nocturno
-  const [darkMode, setDarkMode] = useState(true);
-
-  // Aplicar clase dark para Tailwind
-  useEffect(() => {
-    if (darkMode) document.documentElement.classList.add('dark');
-    else document.documentElement.classList.remove('dark');
-  }, [darkMode]);
-
-  // Colores principales de fondo violeta
-  const bgLight = '#E6E6FA';       // Lavanda claro
-  const bgDark = '#7D3C98';        // Violeta suave
-  const bgColor = darkMode ? bgDark : bgLight;
-
-  // Colores rosa más oscuros para acentos
-  const pinkLight = '#AD1457';     // Rosa fuerte
-  const pinkDark = '#880E4F';      // Rosa oscuro en dark
-
-  // Sombras en tonos rosa/violeta
-  const shadowDark = darkMode ? 'rgba(0,0,0,0.8)' : 'rgba(209, 145, 200, 0.8)';
-  const shadowLight = darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,1)';
-  const neumorphic = `8px 8px 16px ${shadowDark}, -8px -8px 16px ${shadowLight}`;
+  // sombras suaves para estilo “neumórfico”
+  const softShadow = '8px 8px 16px rgba(0,0,0,0.07), -8px -8px 16px rgba(255,255,255,0.60)';
 
   return (
-    <div
-      className="relative min-h-screen flex flex-col items-center justify-center p-6 transition-colors duration-300"
-      style={{ background: bgColor }}
-    >
-      {/* Toggle dark mode */}
-      <button
-        onClick={() => setDarkMode(!darkMode)}
-        className="absolute top-6 right-6 p-2 rounded-full z-50 transition-shadow duration-300"
-        style={{ background: bgColor, boxShadow: neumorphic }}
-        aria-label="Toggle Dark Mode"
-      >
-        {darkMode ? (
-          <Sun className="w-6 h-6" style={{ color: pinkLight }} />
-        ) : (
-          <Moon className="w-6 h-6" style={{ color: pinkDark }} />
-        )}
-      </button>
+    <section id="contacto" className="py-10">
+      <div className="max-w-5xl mx-auto px-4">
+        <h2 className="text-3xl font-extrabold text-center mb-6 uppercase tracking-wide text-[var(--fg)]">
+          Contacto
+        </h2>
 
-      <section id="contacto" className="w-full max-w-4xl">
+        {/* Card principal */}
         <div
-          className="rounded-xl p-6 transition-shadow duration-300"
-          style={{ background: bgColor, boxShadow: neumorphic }}
+          className="rounded-2xl bg-white/60 backdrop-blur ring-1 ring-black/10 p-6 md:p-8"
+          style={{ boxShadow: softShadow }}
         >
-          <h2
-            className="text-4xl font-bold text-center mb-6"
-            style={{ color: darkMode ? '#FFFFFF' : '#7D3C98' }}
-          >
-            Contacto
-          </h2>
-
           <form
             action="https://formspree.io/f/mnnzprlk"
             method="POST"
-            className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6"
+            className="grid grid-cols-1 md:grid-cols-2 gap-5"
           >
-            {['name', 'email', 'subject'].map((field) => (
-              <input
-                key={field}
-                type={field === 'email' ? 'email' : 'text'}
-                name={field}
-                placeholder={
-                  field === 'name' ? 'Tu Nombre' : field === 'email' ? 'Tu Email' : 'Asunto'
-                }
-                required={field !== 'subject'}
-                className="p-4 rounded-lg text-base transition-shadow duration-300"
-                style={{
-                  background: bgColor,
-                  boxShadow: neumorphic,
-                  border: 'none',
-                  color: darkMode ? '#FFF' : '#111',
-                }}
-              />
-            ))}
+            <input
+              type="text"
+              name="name"
+              placeholder="Tu nombre"
+              required
+              className="w-full rounded-xl px-4 py-3 text-[var(--fg)] placeholder-[var(--fg-muted)] ring-1 ring-black/10 bg-white/80 transition focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+              style={{ boxShadow: 'inset 2px 2px 6px rgba(0,0,0,0.06), inset -2px -2px 6px rgba(255,255,255,0.7)' }}
+            />
+
+            <input
+              type="email"
+              name="email"
+              placeholder="Tu email"
+              required
+              className="w-full rounded-xl px-4 py-3 text-[var(--fg)] placeholder-[var(--fg-muted)] ring-1 ring-black/10 bg-white/80 transition focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+              style={{ boxShadow: 'inset 2px 2px 6px rgba(0,0,0,0.06), inset -2px -2px 6px rgba(255,255,255,0.7)' }}
+            />
+
+            <input
+              type="text"
+              name="subject"
+              placeholder="Asunto (opcional)"
+              className="w-full md:col-span-2 rounded-xl px-4 py-3 text-[var(--fg)] placeholder-[var(--fg-muted)] ring-1 ring-black/10 bg-white/80 transition focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+              style={{ boxShadow: 'inset 2px 2px 6px rgba(0,0,0,0.06), inset -2px -2px 6px rgba(255,255,255,0.7)' }}
+            />
 
             <textarea
               name="message"
               placeholder="Mensaje"
-              rows={4}
+              rows={5}
               required
-              className="p-4 rounded-lg text-base transition-shadow duration-300 md:col-span-2"
-              style={{
-                background: bgColor,
-                boxShadow: neumorphic,
-                border: 'none',
-                color: darkMode ? '#FFF' : '#111',
-              }}
+              className="w-full md:col-span-2 rounded-xl px-4 py-3 text-[var(--fg)] placeholder-[var(--fg-muted)] ring-1 ring-black/10 bg-white/80 transition focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+              style={{ boxShadow: 'inset 2px 2px 6px rgba(0,0,0,0.06), inset -2px -2px 6px rgba(255,255,255,0.7)' }}
             />
 
+            {/* Botón con alto contraste y legible siempre */}
             <button
               type="submit"
-              className="mt-2 md:col-span-2 py-3 rounded-lg text-lg font-semibold transition-shadow duration-300"
+              className="md:col-span-2 inline-flex justify-center items-center px-6 py-3 rounded-2xl font-semibold transition ring-1 shadow hover:shadow-md active:translate-y-px"
               style={{
-                background: darkMode ? pinkDark : pinkLight,
-                boxShadow: neumorphic,
-                color: '#FFF',
+                backgroundColor: 'white',
+                color: 'var(--accent-strong)',
+                borderColor: 'var(--accent)',
+                boxShadow: softShadow,
+                borderWidth: 0,
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget.style.backgroundColor = 'var(--accent-strong)');
+                (e.currentTarget.style.color = '#fff');
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget.style.backgroundColor = 'white');
+                (e.currentTarget.style.color = 'var(--accent-strong)');
               }}
             >
-              Enviar Mensaje
+              Enviar mensaje
             </button>
           </form>
 
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-            <div
-              className="flex items-center p-3 rounded-lg transition-shadow duration-300"
-              style={{ background: bgColor, boxShadow: neumorphic }}
+          {/* Info de contacto */}
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <a
+              href="tel:+5492345XXXXXX"
+              className="flex items-center gap-3 rounded-xl px-4 py-3 text-[var(--fg)] ring-1 ring-black/10 bg-white/70 hover:bg-white transition"
+              style={{ boxShadow: softShadow }}
             >
-              <Phone className="w-5 h-5 mr-2" style={{ color: darkMode ? '#FFF' : '#111' }} />
-              <a
-                href="tel:+5492345XXXXXX"
-                className="text-base font-medium"
-                style={{ color: darkMode ? '#FFF' : '#111' }}
-              >
-                +54 9 2345 XXXXXX
-              </a>
-            </div>
+              <Phone className="w-5 h-5 text-[var(--accent)]" />
+              <span className="font-medium">+54 9 2345 XXXXXX</span>
+            </a>
+
             <div
-              className="flex items-center p-3 rounded-lg transition-shadow duration-300"
-              style={{ background: bgColor, boxShadow: neumorphic }}
+              className="flex items-center gap-3 rounded-xl px-4 py-3 text-[var(--fg)] ring-1 ring-black/10 bg-white/70"
+              style={{ boxShadow: softShadow }}
             >
-              <MapPin className="w-5 h-5 mr-2" style={{ color: darkMode ? '#FFF' : '#111' }} />
-              <span className="text-base" style={{ color: darkMode ? '#FFF' : '#111' }}>
-                Chivilcoy 3051, C1417 Cdad. Autónoma de Buenos Aires.
-              </span>
+              <MapPin className="w-5 h-5 text-[var(--accent)]" />
+              <span>Chivilcoy 3051, C1417 CABA</span>
             </div>
           </div>
 
           {/* Mapa */}
-          <div className="rounded-lg overflow-hidden transition-shadow duration-300" style={{ boxShadow: neumorphic }}>
+          <div className="mt-6 rounded-xl overflow-hidden ring-1 ring-black/10"
+               style={{ boxShadow: softShadow }}>
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3283.932423378647!2d-58.508475090190814!3d-34.60587027284075!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bcb62cff9ea3d9%3A0x4da9b27a898df0d9!2sChivilcoy%203051%2C%20C1417%20Cdad.%20Aut%C3%B3noma%20de%20Buenos Aires!5e0!3m2!1ses!2sar!4v1753324312126!5m2!1ses!2sar"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3283.932423378647!2d-58.508475090190814!3d-34.60587027284075!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bcb62cff9ea3d9%3A0x4da9b27a898df0d9!2sChivilcoy%203051%2C%20C1417%20Cdad.%20Aut%C3%B3noma%20de%20Buenos%20Aires!5e0!3m2!1ses!2sar!4v1753324312126!5m2!1ses!2sar"
               width="100%"
               height="300"
               style={{ border: 0 }}
               allowFullScreen
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-            ></iframe>
+            />
           </div>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   );
 }

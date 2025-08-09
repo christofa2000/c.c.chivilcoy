@@ -1,4 +1,115 @@
 @import "tailwindcss";
 
+/* Fuente base y suavizado */
+html {
+  scroll-behavior: smooth;
+  font-family: 'Inter', system-ui, sans-serif;
+  text-transform: none;
+}
 
-html { scroll-behavior: smooth; }
+:root {
+  /* Paleta */
+  --bg-start: #6a2c85;  /* Violeta profundo */
+  --bg-mid: #8b3da0;    /* Violeta vibrante */
+  --bg-end: #d84a82;    /* Rosa elegante */
+
+  /* Texto */
+  --fg: #f3f0f6;        /* Gris claro para fondos oscuros */
+  --fg-strong: #ffffff; /* Blanco puro */
+  --fg-muted: #e2d3ea;  /* Lavanda clara */
+
+  /* Acentos */
+  --accent: #ff82a9;         /* Rosa claro */
+  --accent-strong: #f75990;  /* Rosa intenso */
+}
+
+/* Base */
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+ background-color: #7D3C98; /* Violeta profundo */
+  color: var(--fg);
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Textura */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  opacity: 0.25;
+}
+
+/* Tipografía */
+h1, h2, h3, h4, h5, h6, p, a, button, input, textarea {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  color: var(--fg);
+}
+
+h1, h2, h3 {
+  font-weight: 700;
+  color: var(--fg-strong);
+}
+
+/* Fondos claros: texto oscuro */
+.bg-white,
+.bg-white\/80,
+.bg-neutral-50,
+.bg-neutral-100 {
+  color: #1a1a1a;
+}
+
+.bg-white p,
+.bg-white\/80 p,
+.bg-neutral-50 p,
+.bg-neutral-100 p {
+  color: #1a1a1a;
+}
+
+.bg-white h1, 
+.bg-white h2, 
+.bg-white h3, 
+.bg-white h4, 
+.bg-white h5, 
+.bg-white h6,
+.bg-white\/80 h1, 
+.bg-white\/80 h2, 
+.bg-white\/80 h3, 
+.bg-white\/80 h4, 
+.bg-white\/80 h5, 
+.bg-white\/80 h6 {
+  color: #111;
+}
+
+/* Botones claros */
+.bg-white button,
+.bg-white a,
+.bg-white\/80 button,
+.bg-white\/80 a,
+.bg-neutral-50 button,
+.bg-neutral-50 a {
+  background-color: #7D3C98; /* violeta */
+  color: #fff;
+}
+
+/* Botones oscuros */
+.bg-neutral-900 button,
+.bg-black button {
+  background-color: #FB5DA1; /* rosa */
+  color: #fff;
+}
+
+/* Hover */
+button:hover,
+a:hover {
+  opacity: 0.9;
+}

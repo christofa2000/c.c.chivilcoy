@@ -1,5 +1,4 @@
 import Header from '../components/Header';
-
 import Contact from '../components/Contact';
 import Kids from '../components/Kids';
 import TalleresCarousel from '../components/TalleresCarousel';
@@ -10,9 +9,7 @@ export default function Home() {
   return (
     <>
       <Header />
-      <main className="pt-20">
-       
-       
+      <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Other sections… */}
         <ClasesCarousel />
         <TalleresCarousel />
