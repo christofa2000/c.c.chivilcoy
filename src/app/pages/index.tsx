@@ -10,9 +10,6 @@ const Home: NextPage = () => {
       <Header />
       <main >
         
-        
-        
-        {/* Aquí luego About, Events, Gallery, Workshops, Contact… */}
       </main>
     </>
   )

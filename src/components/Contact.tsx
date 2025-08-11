@@ -9,7 +9,7 @@ export default function Contact() {
   return (
     <section id="contacto" className="py-10">
       <div className="max-w-5xl mx-auto px-4">
-        <h2 className="text-3xl font-extrabold text-center mb-6 uppercase tracking-wide text-[var(--fg)]">
+        <h2 className="text-3xl  text-center mb-6  tracking-wide text-[var(--fg)]">
           Contacto
         </h2>
 
@@ -61,7 +61,7 @@ export default function Contact() {
             {/* Botón con alto contraste y legible siempre */}
             <button
               type="submit"
-              className="md:col-span-2 inline-flex justify-center items-center px-6 py-3 rounded-2xl font-semibold transition ring-1 shadow hover:shadow-md active:translate-y-px"
+              className="md:col-span-2 inline-flex justify-center items-center px-6 py-3 rounded-2xl  transition ring-1 shadow hover:shadow-md active:translate-y-px"
               style={{
                 backgroundColor: 'white',
                 color: 'var(--accent-strong)',

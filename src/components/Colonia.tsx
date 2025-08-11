@@ -20,7 +20,7 @@ export default function ColoniaSection() {
   return (
     <section id="colonia" className="py-12 px-4">
       {/* Título centrado */}
-      <h2 className="text-4xl sm:text-5xl font-extrabold text-center text-white mb-8 uppercase tracking-wide">
+      <h2 className="text-4xl sm:text-5xl  text-center text-white mb-8  tracking-wide">
         Colonia
       </h2>
 
@@ -33,7 +33,7 @@ export default function ColoniaSection() {
               alt={title}
               className="w-full h-48 sm:h-56 md:h-64 lg:h-72 object-cover rounded-lg mb-4"
             />
-            <h3 className="text-2xl font-semibold text-white mb-2">{title}</h3>
+            <h3 className="text-2xl  text-white mb-2">{title}</h3>
             <p className="text-base text-white max-w-prose">
               {info}
             </p>

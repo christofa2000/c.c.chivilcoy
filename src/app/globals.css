@@ -1,79 +1,108 @@
 @import "tailwindcss";
 
-/* Fuente base y suavizado */
-html {
-  scroll-behavior: smooth;
-  font-family: 'Inter', system-ui, sans-serif;
-  text-transform: none;
-}
+/* =============================
+   Base + Responsive defaults
+   ============================= */
 
+/* Evita saltos horizontales por desbordes en móvil */
+html, body { height: 100%; margin: 0; overflow-x: hidden; }
+
+/* Fuente principal */
 :root {
-  /* Paleta */
-  --bg-start: #6a2c85;  /* Violeta profundo */
-  --bg-mid: #8b3da0;    /* Violeta vibrante */
-  --bg-end: #d84a82;    /* Rosa elegante */
+  --font-sans: 'Nunito', system-ui, sans-serif;
+
+  /* Paleta Altitude Gradient personalizada */
+  --bg-start: #c7b7fc;  /* púrpura intenso */
+  --bg-mid:   #9985f3;  /* azul profundo */
+  --bg-end:   #44209F;  /* azul noche */
 
   /* Texto */
-  --fg: #f3f0f6;        /* Gris claro para fondos oscuros */
-  --fg-strong: #ffffff; /* Blanco puro */
-  --fg-muted: #e2d3ea;  /* Lavanda clara */
+  --fg: #f7f4fb;
+  --fg-strong: #ffffff;
+  --fg-muted: #e9daf0;
 
   /* Acentos */
-  --accent: #ff82a9;         /* Rosa claro */
-  --accent-strong: #f75990;  /* Rosa intenso */
+  --accent: #44209F;
+  --accent-strong: #b05db1;
+
+  /* Escalas fluidas */
+  --step--1: clamp(0.85rem, 0.78rem + 0.2vw, 0.95rem);
+  --step-0:  clamp(1rem, 0.9rem + 0.6vw, 1.125rem);
+  --step-1:  clamp(1.25rem, 1rem + 1.4vw, 1.5rem);
+  --step-2:  clamp(1.5rem, 1.2rem + 2vw, 1.875rem);
+  --step-3:  clamp(1.875rem, 1.4rem + 3vw, 2.25rem);
+  --step-4:  clamp(2.25rem, 1.6rem + 4vw, 3rem);
 }
 
-/* Base */
-html, body {
-  height: 100%;
-  margin: 0;
+/* Aplicar fuente global */
+html { 
+  scroll-behavior: smooth; 
+  font-family: var(--font-sans);
+  font-feature-settings: 'clig' off, 'liga' off; 
+  text-transform: none; 
+}
+body, #__next, main { font-family: inherit; }
+* { font-family: inherit; }
+
+/* Respeta usuarios con reducción de movimiento */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
 }
 
 body {
- background-color: #7D3C98; /* Violeta profundo */
+  background: linear-gradient(
+    to bottom,
+    var(--bg-start) 0%,
+    var(--bg-mid) 45%,
+    var(--bg-end) 100%
+  ) no-repeat fixed;
+  background-size: cover;
   color: var(--fg);
-  font-weight: 400;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Textura */
+@media (max-width: 1024px) {
+  body { background-attachment: scroll; }
+}
+
 body::before {
   content: "";
   position: fixed;
   inset: 0;
-  background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
   background-size: 40px 40px;
+  background-repeat: repeat;
   pointer-events: none;
   opacity: 0.25;
 }
 
-/* Tipografía */
-h1, h2, h3, h4, h5, h6, p, a, button, input, textarea {
-  font-family: 'Poppins', sans-serif;
+h1, h2, h3, h4, h5, h6,
+p, a, button, input, textarea {
+  font-family: inherit;
   font-weight: 400;
   color: var(--fg);
 }
 
-h1, h2, h3 {
-  font-weight: 700;
-  color: var(--fg-strong);
-}
+h1 { font-size: var(--step-4); font-weight: 700; color: var(--fg-strong); line-height: 1.1; }
+h2 { font-size: var(--step-3); font-weight: 700; color: var(--fg-strong); line-height: 1.15; }
+h3 { font-size: var(--step-2); font-weight: 700; color: var(--fg-strong); line-height: 1.2; }
+p  { font-size: var(--step-0); line-height: 1.6; }
+small { font-size: var(--step--1); }
 
-/* Fondos claros: texto oscuro */
+img, video, svg, canvas { max-width: 100%; height: auto; }
+
+.container-responsive { width: min(100% - 2rem, 1200px); margin-inline: auto; }
+@media (min-width: 768px) { .container-responsive { width: min(100% - 3rem, 1200px); } }
+@media (min-width: 1280px) { .container-responsive { width: min(100% - 4rem, 1280px); } }
+
 .bg-white,
 .bg-white\/80,
 .bg-neutral-50,
-.bg-neutral-100 {
-  color: #1a1a1a;
-}
+.bg-neutral-100 { color: #1a1a1a; }
 
 .bg-white p,
 .bg-white\/80 p,
 .bg-neutral-50 p,
-.bg-neutral-100 p {
-  color: #1a1a1a;
-}
+.bg-neutral-100 p { color: #1a1a1a; }
 
 .bg-white h1, 
 .bg-white h2, 
@@ -86,30 +115,61 @@ h1, h2, h3 {
 .bg-white\/80 h3, 
 .bg-white\/80 h4, 
 .bg-white\/80 h5, 
-.bg-white\/80 h6 {
-  color: #111;
-}
+.bg-white\/80 h6 { color: #111; }
 
-/* Botones claros */
 .bg-white button,
 .bg-white a,
 .bg-white\/80 button,
 .bg-white\/80 a,
 .bg-neutral-50 button,
 .bg-neutral-50 a {
-  background-color: #7D3C98; /* violeta */
+  background-color: var(--bg-start);
   color: #fff;
 }
 
-/* Botones oscuros */
 .bg-neutral-900 button,
 .bg-black button {
-  background-color: #FB5DA1; /* rosa */
+  background-color: var(--accent);
   color: #fff;
 }
 
-/* Hover */
-button:hover,
-a:hover {
-  opacity: 0.9;
+@media (hover: hover) and (pointer: fine) {
+  button:hover,
+  a:hover { opacity: 0.9; }
+}
+
+button, a { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+* { min-width: 0; }
+
+.glass {
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 1rem;
+}
+
+.header-elevated { position: relative; z-index: 50; }
+
+/* ===== Refuerzo global Nunito ===== */
+.font-sans,
+[class*="font-sans"],
+[class*="FontSans"] {
+  font-family: var(--font-sans) !important;
+}
+
+h1, h2, h3, h4, h5, h6,
+p, a, button, input, textarea, label,
+figcaption, blockquote, li, dt, dd {
+  font-family: inherit !important;
+}
+
+/* Carousels más usados */
+[data-carousel],
+.embla, .embla__slide, .embla__container,
+.swiper, .swiper-slide, .swiper-wrapper,
+.slick-slider, .slick-slide, .slick-track,
+.carousel, .carousel-item, .carousel-title,
+figcaption h1, figcaption h2, figcaption h3 {
+  font-family: var(--font-sans) !important;
 }

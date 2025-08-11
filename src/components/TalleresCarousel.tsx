@@ -42,7 +42,7 @@ export default function TalleresCarousel() {
   return (
     <section id="talleres" className="py-8">
       <div className="max-w-5xl mx-auto px-4">
-        <h2 className="text-3xl font-extrabold text-center mb-6 uppercase tracking-wide text-neutral-900">
+        <h2 className="text-3xl text-center mb-6  tracking-wide text-neutral-900">
           Talleres
         </h2>
 
@@ -83,7 +83,7 @@ export default function TalleresCarousel() {
 
             {/* Contenido */}
             <div className="p-5 md:p-6">
-              <h3 id="modal-title" className="text-2xl font-bold tracking-tight">
+              <h3 id="modal-title" className="text-2xl tracking-tight">
                 {selected.title}
               </h3>
               <p id="modal-desc" className="mt-3 leading-relaxed text-neutral-700">

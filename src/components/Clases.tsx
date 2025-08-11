@@ -42,7 +42,7 @@ export default function ClasesCarousel() {
   return (
     <section id="clases" className="py-8">
       <div className="max-w-5xl mx-auto px-4 py-4">
-        <h2 className="text-3xl font-extrabold text-center mb-4 uppercase tracking-wide">
+        <h2 className="text-3xl  text-center mb-4  tracking-wide">
           Clases
         </h2>
         <Carousel slides={slides} autoPlay={false} maxWidth="2xl" height="comfortable" />
@@ -77,7 +77,7 @@ export default function ClasesCarousel() {
 
             {/* Contenido */}
             <div className="p-5 sm:p-6 md:p-7">
-              <h3 id="modal-title" className="text-2xl font-bold tracking-tight">
+              <h3 id="modal-title" className="text-2xl  tracking-tight">
                 {selected.title}
               </h3>
               <p id="modal-desc" className="mt-3 leading-relaxed text-black ">
