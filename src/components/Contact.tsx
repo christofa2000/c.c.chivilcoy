@@ -148,7 +148,7 @@ function Guestbook() {
         if (!res.ok) throw new Error("No se pudo cargar el muro");
         const data = (await res.json()) as { messages: Msg[] };
         if (!cancelled) setMessages(data.messages ?? []);
-      } catch (e: any) {
+      } catch {
         // fallback opcional si tenías seeded local
         if (!cancelled) setMessages([]);
       } finally {
@@ -225,8 +225,9 @@ function Guestbook() {
       setText("");
       setEmoji("🌟");
       localStorage.setItem(LS_RATE_KEY, String(Date.now()));
-    } catch (e: any) {
-      setError(e?.message || "Error al publicar");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error al publicar";
+      setError(msg);
     } finally {
       setBusy(false);
     }
@@ -367,11 +368,6 @@ function Guestbook() {
             "🪘",
             "🥳",
           ].map((em) => (
-            <option key={em} value={em}>
-              {em}
-            </option>
-          ))}
-          {["🌟", "💜", "🎨", "🎭", "🎶", "👏", "🔥", "😊"].map((em) => (
             <option key={em} value={em}>
               {em}
             </option>
