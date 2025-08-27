@@ -1,6 +1,6 @@
 # 🎨 Espacio de Arte Chivilcoy
 
-Landing page responsive de un centro cultural en Chivilcoy: exposiciones, clases y talleres artísticos.
+Landing page **responsive** para el centro cultural **Espacio de Arte Chivilcoy**, un lugar de encuentro para exposiciones, clases y talleres artísticos en un entorno creativo.
 
 ---
 
@@ -13,7 +13,7 @@ Landing page responsive de un centro cultural en Chivilcoy: exposiciones, clases
 - [Actualizaciones Recientes](#actualizaciones-recientes)
 - [Instalación](#instalación)
 - [Uso](#uso)
-- [Estructura de carpetas](#estructura-de-carpetas)
+- [Estructura de Carpetas](#estructura-de-carpetas)
 - [Despliegue](#despliegue)
 - [Contribuir](#contribuir)
 - [Licencia](#licencia)
@@ -22,61 +22,64 @@ Landing page responsive de un centro cultural en Chivilcoy: exposiciones, clases
 
 ## 📝 Descripción
 
-Esta landing page para **Espacio de Arte Chivilcoy** muestra:
+La landing page de **Espacio de Arte Chivilcoy** busca transmitir la identidad cultural del espacio con un diseño moderno y accesible:
 
-- Cabecera fija con menú responsive y paleta de colores rosa/violeta.
-- Sección *Hero* con imagen de fondo y texto de bienvenida.
-- Sección de *Próximos Eventos* en carrusel horizontal.
-- Formulario de *Contacto* integrable con Formspree (envío directo a tu email).
-- Íconos de teléfono y ubicación, y mapa de Google en `iframe`.
+- Paleta de colores **rosa/violeta** con degradados vivos y fondo animado de partículas.
+- Cabecera fija con menú **responsive** y navegación fluida.
+- Carruseles interactivos para mostrar **talleres, clases y actividades infantiles**.
+- Sección **Visítanos**: dirección, teléfono, WhatsApp y mapa embebido.
+- Espacio **lúdico de comunidad**: un _Muro de Mensajes_ donde los visitantes dejan comentarios y reacciones.
 
-El diseño es **mobile-first**, con Tailwind CSS y Next.js 13 (App Router).
+El diseño está pensado para ser **mobile-first**, rápido y fácil de mantener.
 
 ---
 
 ## 🚀 Características
 
-- Menú fijo y hamburguesa en móvil.
-- Degradado de fondo rosa oscuro a violeta intenso.
-- Cards de eventos con `next/image` para optimización.
-- Formulario de contacto (`Formspree`) sin backend propio.
-- Mapa de ubicación embebido.
-- Accesibilidad básica (contraste, `alt` en imágenes).
-- **Carousel interactivo** para mostrar actividades de Kids, Talleres y Clases.
-- **Toggle Pills** para la sección Colonia con modalidades Verano e Invierno.
+- 🌈 **Fondo animado** con partículas rosas y violetas.
+- 📱 **Menú fijo y hamburguesa en móvil**.
+- 🎠 **Carruseles** con zoom al seleccionar (Kids, Talleres, Clases).
+- 🗂 **Sección Colonia** con toggle de Verano/Invierno.
+- 📍 **Visítanos compacto**: dirección, mapa, teléfono, WhatsApp y facilidades para bici.
+- 💬 **Muro de Mensajes interactivo** con emojis y reacciones (persistencia local).
+- ♿ **Accesibilidad básica** (contraste, `alt` en imágenes, navegación clara).
 
 ---
 
 ## 🖌 Actualizaciones Recientes
 
-- **Tipografía global moderna:** Migración a `Nunito` como fuente principal, aplicada globalmente (incluyendo títulos de carouseles y componentes de terceros).
-- **Globals.css optimizado:** Unificación de estilos y refuerzo para que todos los elementos respeten la tipografía definida.
-- **Carruseles mejorados:**  
-  - Ahora muestran **3 imágenes simultáneamente** en desktop.  
-  - Imágenes ajustadas para ocupar todo el alto y ancho de la card sin distorsión.  
-  - Comportamiento responsive optimizado para móvil y tablet.  
-- **Mejor visualización en despliegue:** Ajustes de spacing, sombras y gradientes para un look más limpio.
+- 🟣 **Nuevo fondo animado** con partículas luminosas rosas/violetas.
+- 💬 **Muro de Mensajes** reemplazó al formulario de contacto tradicional.
+- 🚲 **Info de movilidad** simplificada: se quitó colectivo/auto, queda solo “Lugar dentro para guardar bicis”.
+- 🔤 **Tipografía global**: uso de `Raleway` para todo el sitio.
+- 🖼 **Carruseles mejorados**:
+  - Cards más grandes y centradas al click.
+  - Imágenes optimizadas con `next/image`.
+  - Mejor rendimiento en mobile y desktop.
 
 ---
 
 ## 🗂 Secciones Implementadas
 
-1. **Kids:** Carrusel horizontal con actividades infantiles (Canto/Guitarra, Teatro, Teclado, Danza, Urbano Kids, Arte y Juego, Yoga Infantil), con zoom y centrado al seleccionar.
-2. **Talleres:** Carrusel personalizado para listados de talleres (Teatro, Arte, Dibujo, Hatha Yoga, Canto) con estilo moderno y agrandado al click.
-3. **Clases:** Carrusel análogo para clases de baile y artes marciales (Bachata, Folclore, Salsa, Artes Marciales, Baile y Movimiento).
-4. **Colonia:** Toggle de dos opciones (Verano e Invierno) que despliega una card centrada con imagen e información.
+1. **Hero:** Imagen de fondo + bienvenida al centro cultural.
+2. **Kids:** Carrusel de actividades para niñxs (Canto/Guitarra, Teatro, Danza, Yoga Infantil, etc.).
+3. **Talleres:** Carrusel con talleres artísticos y de formación.
+4. **Clases:** Carrusel con baile, artes marciales y movimiento.
+5. **Colonia:** Toggle de Verano/Invierno con card informativa.
+6. **Visítanos:** Teléfono, WhatsApp, dirección, mapa y bici.
+7. **Muro de Mensajes:** Espacio comunitario con mensajes, emojis y reacciones.
 
 ---
 
 ## 🛠 Tecnologías
 
-- **Next.js 13** (App Router)
-- **React** y **TypeScript**
-- **Tailwind CSS**
-- **Lucide React** (íconos)
-- **Framer Motion** (animaciones)
-- **Formspree** (procesamiento de formularios)
-- **Google Maps Embed**
+- ⚛️ **Next.js 13** (App Router)
+- ⚡ **React** + **TypeScript**
+- 🎨 **Tailwind CSS**
+- 🎭 **Framer Motion** (animaciones)
+- 🖼 **next/image** (optimización)
+- 🗺 **Google Maps Embed**
+- 🎨 **Lucide React** (íconos SVG)
 
 ---
 
@@ -86,3 +89,5 @@ El diseño es **mobile-first**, con Tailwind CSS y Next.js 13 (App Router).
 git clone https://github.com/TU_USUARIO/espacio-arte-chivilcoy.git
 cd espacio-arte-chivilcoy
 npm install
+npm run dev
+```

@@ -1,30 +1,35 @@
 // app/layout.tsx
-import './globals.css';
-import { Raleway } from 'next/font/google';
-import type { Metadata } from 'next';
-// import Footer from '@/components/Footer'; // ajustá la ruta si hace falta
-import Footer from '../components/Footer'; // ajusta la ruta si tu estructura de carpetas es diferente
+import "./globals.css";
+import { Raleway } from "next/font/google";
+import type { Metadata } from "next";
+import Footer from "../components/Footer";
+import Background from "../components/Background";
 
 export const metadata: Metadata = {
-  title: 'Espacio Chivilcoy',
-  description: 'Sitio oficial',
+  title: "Espacio Chivilcoy",
+  description: "Sitio oficial",
 };
 
 const raleway = Raleway({
-  subsets: ['latin'],
-  weight: ['300', '400', '600', '700', '800'],
-  display: 'swap',
-  variable: '--font-raleway', // <<< expone la variable CSS
+  subsets: ["latin"],
+  weight: ["300", "400", "600", "700", "800"],
+  display: "swap",
+  variable: "--font-raleway",
 });
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="es" className={raleway.variable}>
-      {/* usamos la variable directamente como font-family con Tailwind (arbitrary value) */}
+      {/* body exactamente como cuando funcionaba */}
       <body className="min-h-screen antialiased font-[var(--font-raleway),system-ui,sans-serif]">
-        <main className="min-h-screen flex flex-col">
-          {children}
-        </main>
+        {/* 🎯 Fondo encapsulado (no toca CSS global) */}
+        <Background />
+
+        <main className="min-h-screen flex flex-col">{children}</main>
         <Footer />
       </body>
     </html>
