@@ -1,6 +1,14 @@
 "use client";
-import { useEffect, useId, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { IconArrowNarrowRight } from "@tabler/icons-react";
+import Image from "next/image";
 
 export interface SlideData {
   title: string;
@@ -15,8 +23,8 @@ interface CarouselProps {
   autoPlay?: boolean;
   autoPlayMs?: number; // default 6000
   className?: string;
-  maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "full"; // default "lg"
-  height?: "compact" | "comfortable" | "tall"; // default "compact"
+  maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "full"; // default "xl"
+  height?: "compact" | "comfortable" | "tall"; // default "comfortable"
   fullBleed?: boolean; // default false
   onSlideChange?: (current: number, total: number) => void;
 }
@@ -30,8 +38,8 @@ export default function Carousel({
   autoPlay = false,
   autoPlayMs = 6000,
   className,
-  maxWidth = "lg", // 👈 más angosto por defecto
-  height = "compact", // 👈 más bajo por defecto
+  maxWidth = "xl",
+  height = "comfortable",
   fullBleed = false,
   onSlideChange,
 }: CarouselProps) {
@@ -40,16 +48,13 @@ export default function Carousel({
   const viewportRef = useRef<HTMLDivElement>(null);
   const activeRef = useRef<HTMLLIElement>(null);
 
-  // Detect touch para desactivar parallax
+  // Detectar touch para desactivar parallax
   const [isTouch, setIsTouch] = useState(false);
   useEffect(() => {
-    setIsTouch(
-      typeof window !== "undefined" &&
-        ("ontouchstart" in window || navigator.maxTouchPoints > 0)
-    );
+    setIsTouch("ontouchstart" in window || navigator.maxTouchPoints > 0);
   }, []);
 
-  // items por vista (1 / 2 / 3)
+  // Items por vista (1/2/3 responsivo)
   const [perView, setPerView] = useState(1);
   useEffect(() => {
     const mqLg = window.matchMedia("(min-width: 1024px)");
@@ -64,7 +69,7 @@ export default function Carousel({
     };
   }, []);
 
-  // medir viewport
+  // Medir viewport para mover en px exactos
   const [viewportW, setViewportW] = useState(0);
   useEffect(() => {
     const ro = new ResizeObserver(() => {
@@ -75,22 +80,23 @@ export default function Carousel({
   }, []);
   const cardW = Math.max(1, viewportW / Math.max(perView, 1));
 
-  // virtual track
+  // Virtual track
   const clones = Math.max(perView, 1);
-  const virtualSlides = [
-    ...slides.slice(-clones),
-    ...slides,
-    ...slides.slice(0, clones),
-  ];
+  const virtualSlides = useMemo(
+    () => [...slides.slice(-clones), ...slides, ...slides.slice(0, clones)],
+    [slides, clones]
+  );
+
   const [index, setIndex] = useState(clones);
   const [isAnimating, setIsAnimating] = useState(false);
 
+  // Reposicionar si cambia perView
   useEffect(() => {
     setIndex(clones);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clones, slides.length]);
 
-  // parallax (no touch)
+  // Parallax sutil
   const xyRef = useRef({ x: 0, y: 0 });
   const rafRef = useRef<number | null>(null);
   useEffect(() => {
@@ -109,41 +115,52 @@ export default function Carousel({
     };
   }, [isTouch]);
 
-  const goTo = (next: number) => {
-    if (isAnimating) return;
-    setIsAnimating(true);
-    setIndex(next);
-  };
-  const next = () => goTo(index + 1);
-  const prev = () => goTo(index - 1);
+  const goTo = useCallback(
+    (nextIdx: number) => {
+      if (isAnimating) return;
+      setIsAnimating(true);
+      setIndex(nextIdx);
+    },
+    [isAnimating]
+  );
 
-  const handleTransitionEnd = () => {
+  const next = useCallback(() => goTo(index + 1), [goTo, index]);
+  const prev = useCallback(() => goTo(index - 1), [goTo, index]);
+
+  const handleTransitionEnd = useCallback(() => {
     setIsAnimating(false);
     const lastVirtual = slides.length + clones;
-    if (index >= lastVirtual) noAnimate(() => setIndex(clones));
-    else if (index < clones)
+    if (index >= lastVirtual) {
+      noAnimate(() => setIndex(clones));
+    } else if (index < clones) {
       noAnimate(() => setIndex(slides.length + clones - 1));
-  };
+    }
+  }, [clones, index, slides.length]);
 
   const noAnimate = (fn: () => void) => {
     const track = trackRef.current;
-    if (!track) return fn();
-    const prev = track.style.transition;
+    if (!track) {
+      fn();
+      return;
+    }
+    const prevTransition = track.style.transition;
     track.style.transition = "none";
     fn();
-    void track.offsetHeight;
-    track.style.transition = prev;
+    // reflow
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    track.offsetHeight;
+    track.style.transition = prevTransition;
   };
 
-  // autoplay
+  // AutoPlay
   const [pause, setPause] = useState(false);
   useEffect(() => {
     if (!autoPlay || pause) return;
     const t = setInterval(() => next(), autoPlayMs);
     return () => clearInterval(t);
-  }, [autoPlay, autoPlayMs, pause, index]);
+  }, [autoPlay, autoPlayMs, pause, next]);
 
-  // teclado
+  // Teclado
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowRight") next();
     if (e.key === "ArrowLeft") prev();
@@ -151,7 +168,7 @@ export default function Carousel({
     if (e.key === "End") noAnimate(() => setIndex(slides.length + clones - 1));
   };
 
-  // drag/swipe
+  // Drag / Swipe
   const startRef = useRef<{ x: number; y: number } | null>(null);
   const draggingRef = useRef(false);
   const onPointerDown = (e: React.PointerEvent) => {
@@ -167,21 +184,29 @@ export default function Carousel({
     trackRef.current.style.transition = "none";
     trackRef.current.style.transform = `translate3d(${base + dx}px,0,0)`;
   };
-  const onPointerUp = (e: React.PointerEvent) => {
+  const onPointerUp = () => {
     if (!draggingRef.current || !trackRef.current || !startRef.current) return;
-    const dx = e.clientX - startRef.current.x;
-    const threshold = Math.max(40, cardW * 0.2);
+    const dx =
+      startRef.current && viewportRef.current
+        ? trackRef.current.getBoundingClientRect().left -
+          viewportRef.current.getBoundingClientRect().left +
+          index * cardW
+        : 0;
+    // decidir por distancia real movida:
     draggingRef.current = false;
     trackRef.current.style.transition = "";
-    if (Math.abs(dx) > threshold) dx < 0 ? next() : prev();
-    else {
+    const moved = -dx; // simplificado
+    const threshold = Math.max(40, cardW * 0.2);
+    if (Math.abs(moved) > threshold) {
+      moved < 0 ? next() : prev();
+    } else {
       setIndex((i) => i);
       setIsAnimating(false);
     }
     startRef.current = null;
   };
 
-  // mouse parallax (no touch)
+  // Parallax solo activo
   const onMouseMoveActive = (e: React.MouseEvent) => {
     if (isTouch) return;
     const el = activeRef.current;
@@ -192,17 +217,23 @@ export default function Carousel({
       y: e.clientY - (r.top + r.height / 2),
     };
   };
-  const onMouseLeaveActive = () => (xyRef.current = { x: 0, y: 0 });
+  const onMouseLeaveActive = () => {
+    xyRef.current = { x: 0, y: 0 };
+  };
 
   const realCount = slides.length;
   const currentReal = ((index - clones + realCount) % realCount) + 1;
+  const translateX = -index * cardW;
 
-  // alturas (achicadas)
+  useEffect(() => {
+    onSlideChange?.(currentReal, realCount);
+  }, [currentReal, realCount, onSlideChange]);
+
   const heightMap: Record<NonNullable<CarouselProps["height"]>, string> = {
-    compact: "h-[38vw] min-h-[150px] sm:h-[200px] md:h-[240px] lg:h-[260px]", // 👈 más bajo
+    compact: "h-[46vw] min-h-[180px] sm:h-[220px] md:h-[260px] lg:h-[280px]",
     comfortable:
-      "h-[46vw] min-h-[180px] sm:h-[240px] md:h-[280px] lg:h-[300px]",
-    tall: "h-[56vw] min-h-[200px] sm:h-[300px] md:h-[340px] lg:h-[380px]",
+      "h-[52vw] min-h-[200px] sm:h-[280px] md:h-[320px] lg:h-[340px]",
+    tall: "h-[60vw] min-h-[220px] sm:h-[340px] md:h-[380px] lg:h-[420px]",
   };
 
   const maxWMap: Record<NonNullable<CarouselProps["maxWidth"]>, string> = {
@@ -217,12 +248,6 @@ export default function Carousel({
 
   const containerWidth = fullBleed ? "w-screen" : "w-full";
   const containerMax = fullBleed ? "max-w-none" : maxWMap[maxWidth];
-  const translateX = -index * cardW;
-
-  useEffect(() => {
-    onSlideChange?.(currentReal, realCount);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentReal]);
 
   return (
     <section
@@ -244,7 +269,7 @@ export default function Carousel({
 
       <div
         ref={viewportRef}
-        className="relative overflow-hidden rounded-xl shadow-md bg-neutral-900/60" // 👈 bordes y sombra más discretos
+        className="relative overflow-hidden rounded-2xl shadow-lg bg-neutral-900/60"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -253,7 +278,6 @@ export default function Carousel({
         aria-label={`Slide ${currentReal} de ${realCount}`}
         style={{ touchAction: "pan-y" }}
       >
-        {/* Track */}
         <ul
           ref={trackRef}
           className="flex items-stretch transition-transform duration-500 ease-[cubic-bezier(.2,.8,.2,1)] will-change-transform"
@@ -266,29 +290,30 @@ export default function Carousel({
               <li
                 key={`${s.title}-${i}`}
                 ref={isActive ? activeRef : undefined}
-                className="relative shrink-0 px-1.5 sm:px-2.5 md:px-3" // 👈 menos padding lateral
+                className="relative shrink-0 px-2 sm:px-3 md:px-4 [perspective:1200px] [transform-style:preserve-3d]"
                 style={{ width: `${100 / Math.max(perView, 1)}%` }}
               >
                 <figure
                   className={cn(
                     `${heightMap[height]} overflow-hidden`,
-                    "rounded-xl bg-black text-white grid ring-1 ring-white/5"
+                    "rounded-2xl bg-black text-white grid shadow-lg ring-1 ring-white/5"
                   )}
                   onMouseMove={isActive ? onMouseMoveActive : undefined}
                   onMouseLeave={isActive ? onMouseLeaveActive : undefined}
                 >
-                  {/* Imagen */}
+                  {/* Imagen (next/image) */}
                   <div className="absolute inset-0">
-                    <img
+                    <Image
                       src={s.src}
                       alt={s.title}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       className={cn(
-                        "w-full h-full object-contain sm:object-cover object-center bg-black",
+                        "object-contain sm:object-cover object-center bg-black",
                         isActive ? "opacity-100" : "opacity-85",
                         "transition-opacity duration-500"
                       )}
-                      loading={isActive ? "eager" : "lazy"}
-                      decoding="async"
+                      priority={isActive}
                       style={{
                         transform: isTouch
                           ? "translate3d(0,0,0)"
@@ -299,30 +324,18 @@ export default function Carousel({
 
                   {/* Gradiente inferior y contenido */}
                   <div className="absolute inset-x-0 bottom-0 z-10">
-                    <div className="pointer-events-none h-[34%] sm:h-[30%] lg:h-[28%] bg-gradient-to-t from-black/65 via-black/20 to-transparent" />
-                    <div className="absolute inset-x-0 bottom-0 p-2.5 sm:p-3.5 lg:p-5">
+                    <div className="pointer-events-none h-[36%] sm:h-[32%] lg:h-[30%] bg-gradient-to-t from-black/65 via-black/20 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 lg:p-6">
                       <figcaption className="max-w-prose">
-                        {/* 👇 tipografía unificada */}
-                        <h3
-                          className="text-[15px] sm:text-base md:text-lg lg:text-xl font-semibold tracking-tight drop-shadow"
-                          style={{
-                            fontFamily:
-                              "var(--font-raleway), system-ui, sans-serif",
-                          }}
-                        >
+                        <h3 className="text-base md:text-lg lg:text-xl font-semibold tracking-tight drop-shadow">
                           {s.title}
                         </h3>
-
                         {s.button && (
-                          <div className="mt-1.5 sm:mt-2">
+                          <div className="mt-2">
                             {s.href ? (
                               <a
                                 href={s.href}
-                                className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white text-black text-[15px] sm:text-base shadow ring-1 ring-black/5 hover:shadow-lg transition"
-                                style={{
-                                  fontFamily:
-                                    "var(--font-raleway), system-ui, sans-serif",
-                                }}
+                                className="inline-flex items-center gap-2 px-3 py-2 rounded-2xl bg-white text-black text-xs sm:text-sm shadow ring-1 ring-black/5 hover:shadow-lg transition"
                               >
                                 {s.button}
                                 <IconArrowNarrowRight />
@@ -330,11 +343,7 @@ export default function Carousel({
                             ) : (
                               <button
                                 type="button"
-                                className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white text-black text-[15px] sm:text-base shadow ring-1 ring-black/5 hover:shadow-lg active:translate-y-px transition"
-                                style={{
-                                  fontFamily:
-                                    "var(--font-raleway), system-ui, sans-serif",
-                                }}
+                                className="inline-flex items-center gap-2 px-3 py-2 rounded-2xl bg-white text-black text-xs sm:text-sm shadow ring-1 ring-black/5 hover:shadow-lg active:translate-y-px transition"
                                 onClick={() => s.onClick?.()}
                               >
                                 {s.button}
@@ -352,11 +361,11 @@ export default function Carousel({
           })}
         </ul>
 
-        {/* Edge fades más sutiles */}
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-6 sm:w-10 bg-gradient-to-r from-neutral-950/60 to-transparent" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-6 sm:w-10 bg-gradient-to-l from-neutral-950/60 to-transparent" />
+        {/* Edge fades */}
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-8 sm:w-12 bg-gradient-to-r from-neutral-950/70 to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-8 sm:w-12 bg-gradient-to-l from-neutral-950/70 to-transparent" />
 
-        {/* Controles (44px mínimo) */}
+        {/* Controles */}
         <div className="pointer-events-none absolute inset-y-0 left-0 right-0 flex items-center justify-between p-2 sm:p-3">
           <button
             type="button"
@@ -378,7 +387,7 @@ export default function Carousel({
       </div>
 
       {/* Dots */}
-      <div className="mt-3 flex items-center justify-center gap-2">
+      <div className="mt-4 flex items-center justify-center gap-2">
         {slides.map((_, i) => {
           const realPos = i + 1;
           const active = currentReal === realPos;
@@ -388,7 +397,7 @@ export default function Carousel({
               type="button"
               onClick={() => noAnimate(() => setIndex(realPos + clones - 1))}
               className={cn(
-                "w-2.5 h-2.5 rounded-full transition ring-1 ring-black/10",
+                "w-3 h-3 rounded-full transition ring-1 ring-black/10",
                 active
                   ? "scale-110 bg-[#6D64F7] shadow"
                   : "bg-neutral-300/70 hover:bg-neutral-400"
@@ -400,7 +409,7 @@ export default function Carousel({
         })}
       </div>
 
-      {/* Fix iOS Safari: evitar zoom al tocar botones/inputs < 16px */}
+      {/* iOS font-size fix + reduced motion */}
       <style jsx global>{`
         @supports (-webkit-touch-callout: none) {
           a,
@@ -412,12 +421,9 @@ export default function Carousel({
           }
         }
       `}</style>
-
       <style jsx>{`
         @media (prefers-reduced-motion: reduce) {
-          ul {
-            transition: none !important;
-          }
+          ul,
           figure {
             transition: none !important;
           }
