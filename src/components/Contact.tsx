@@ -53,10 +53,7 @@ export default function ContactoPage() {
    ========================================================= */
 function HeaderTitle() {
   return (
-    <h2
-      className="text-3xl text-center mb-6 tracking-wide"
-      style={{ color: "var(--fg, #1a1a1a)" }}
-    >
+    <h2 className="text-3xl text-center mb-6 tracking-wide text-white">
       Visítanos
     </h2>
   );

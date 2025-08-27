@@ -47,8 +47,9 @@ export default function Particles() {
     window.addEventListener("resize", resize);
 
     // Densidad adaptativa (según tamaño de pantalla)
-    const targetCount = Math.floor((w * h) / 16000);
-    const count = Math.max(60, Math.min(160, targetCount));
+    // Densidad más alta
+    const targetCount = Math.floor((w * h) / 9000); // más partículas por área
+    const count = Math.max(120, Math.min(300, targetCount));
 
     // Partículas intensas
     const parts: Particle[] = prefersReduced
