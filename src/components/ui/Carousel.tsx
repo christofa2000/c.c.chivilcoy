@@ -40,11 +40,20 @@ export default function Carousel({
   const viewportRef = useRef<HTMLDivElement>(null);
   const activeRef = useRef<HTMLLIElement>(null);
 
+  // Detectamos entorno táctil para desactivar parallax
+  const [isTouch, setIsTouch] = useState(false);
+  useEffect(() => {
+    setIsTouch(
+      typeof window !== "undefined" &&
+        ("ontouchstart" in window || navigator.maxTouchPoints > 0)
+    );
+  }, []);
+
   // --- items por vista (1 / 2 / 3 responsivo) ---
   const [perView, setPerView] = useState(1);
   useEffect(() => {
     const mqLg = window.matchMedia("(min-width: 1024px)"); // lg
-    const mqSm = window.matchMedia("(min-width: 640px)");  // sm
+    const mqSm = window.matchMedia("(min-width: 640px)"); // sm
     const update = () => setPerView(mqLg.matches ? 3 : mqSm.matches ? 2 : 1);
     update();
     mqLg.addEventListener("change", update);
@@ -83,10 +92,11 @@ export default function Carousel({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clones, slides.length]);
 
-  // Parallax sutil (solo traslación)
+  // Parallax sutil (solo traslación) — desactivado en touch
   const xyRef = useRef({ x: 0, y: 0 });
   const rafRef = useRef<number | null>(null);
   useEffect(() => {
+    if (isTouch) return; // no parallax en touch
     const loop = () => {
       const el = activeRef.current;
       if (el) {
@@ -99,7 +109,7 @@ export default function Carousel({
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, []);
+  }, [isTouch]);
 
   const goTo = (next: number) => {
     if (isAnimating) return;
@@ -113,9 +123,9 @@ export default function Carousel({
     setIsAnimating(false);
     const lastVirtual = slides.length + clones;
     if (index >= lastVirtual) {
-      noAnimate(() => setIndex(clones)); // saltar al primero real
+      noAnimate(() => setIndex(clones));
     } else if (index < clones) {
-      noAnimate(() => setIndex(slides.length + clones - 1)); // saltar al último real
+      noAnimate(() => setIndex(slides.length + clones - 1));
     }
   };
 
@@ -125,7 +135,7 @@ export default function Carousel({
     const prev = track.style.transition;
     track.style.transition = "none";
     fn();
-    void track.offsetHeight; // reflow
+    void track.offsetHeight;
     track.style.transition = prev;
   };
 
@@ -166,18 +176,19 @@ export default function Carousel({
     const dx = e.clientX - startRef.current.x;
     const threshold = Math.max(40, cardW * 0.2); // 20% de la tarjeta
     draggingRef.current = false;
-    trackRef.current!.style.transition = ""; // vuelve transición CSS
+    trackRef.current!.style.transition = "";
     if (Math.abs(dx) > threshold) {
       dx < 0 ? next() : prev();
     } else {
-      setIndex((i) => i); // rebote
+      setIndex((i) => i);
       setIsAnimating(false);
     }
     startRef.current = null;
   };
 
-  // Parallax solo en el activo
+  // Parallax solo en el activo (no touch)
   const onMouseMoveActive = (e: React.MouseEvent) => {
+    if (isTouch) return;
     const el = activeRef.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
@@ -193,7 +204,14 @@ export default function Carousel({
   const realCount = slides.length;
   const currentReal = ((index - clones + realCount) % realCount) + 1; // 1..n
 
-  // Mapas de tamaño
+  // Mapas de tamaño (ligero ajuste: menos alto en mobile)
+  const heightMap: Record<NonNullable<CarouselProps["height"]>, string> = {
+    compact: "h-[46vw] min-h-[180px] sm:h-[220px] md:h-[260px] lg:h-[280px]",
+    comfortable:
+      "h-[52vw] min-h-[200px] sm:h-[280px] md:h-[320px] lg:h-[340px]",
+    tall: "h-[60vw] min-h-[220px] sm:h-[340px] md:h-[380px] lg:h-[420px]",
+  };
+
   const maxWMap: Record<NonNullable<CarouselProps["maxWidth"]>, string> = {
     sm: "max-w-screen-sm",
     md: "max-w-screen-md",
@@ -202,12 +220,6 @@ export default function Carousel({
     "2xl": "max-w-screen-2xl",
     "3xl": "max-w-[1600px]",
     full: "max-w-none",
-  };
-  const heightMap: Record<NonNullable<CarouselProps["height"]>, string> = {
-    compact: "h-[32vw] min-h-[160px] sm:h-[220px] md:h-[260px] lg:h-[280px]",
-    comfortable:
-      "h-[42vw] min-h-[200px] sm:h-[280px] md:h-[320px] lg:h-[340px]",
-    tall: "h-[52vw] min-h-[220px] sm:h-[340px] md:h-[380px] lg:h-[420px]",
   };
 
   const containerWidth = fullBleed ? "w-screen" : "w-full";
@@ -262,7 +274,7 @@ export default function Carousel({
                 key={`${s.title}-${i}`}
                 ref={isActive ? activeRef : undefined}
                 className="relative shrink-0 px-2 sm:px-3 md:px-4 [perspective:1200px] [transform-style:preserve-3d]"
-                style={{ width: `${100 / Math.max(perView, 1)}%` }} // 1/2/3 por vista
+                style={{ width: `${100 / Math.max(perView, 1)}%` }}
               >
                 <figure
                   className={cn(
@@ -272,7 +284,7 @@ export default function Carousel({
                   onMouseMove={isActive ? onMouseMoveActive : undefined}
                   onMouseLeave={isActive ? onMouseLeaveActive : undefined}
                 >
-                  {/* Imagen: completa en chico, cover en sm+ */}
+                  {/* Imagen */}
                   <div className="absolute inset-0">
                     <img
                       src={s.src}
@@ -285,8 +297,9 @@ export default function Carousel({
                       loading={isActive ? "eager" : "lazy"}
                       decoding="async"
                       style={{
-                        transform:
-                          "translate3d(calc(var(--x,0)*-0.01), calc(var(--y,0)*-0.01), 0)",
+                        transform: isTouch
+                          ? "translate3d(0,0,0)"
+                          : "translate3d(calc(var(--x,0)*-0.01), calc(var(--y,0)*-0.01), 0)",
                       }}
                     />
                   </div>
@@ -304,7 +317,7 @@ export default function Carousel({
                             {s.href ? (
                               <a
                                 href={s.href}
-                                className="inline-flex items-center gap-2 px-3 py-2 rounded-2xl bg-white text-black text-xs sm:text-sm shadow ring-1 ring-black/5 hover:shadow-lg transition"
+                                className="inline-flex items-center gap-2 px-3 py-2 rounded-2xl bg-white text-black text-base sm:text-base shadow ring-1 ring-black/5 hover:shadow-lg transition"
                               >
                                 {s.button}
                                 <IconArrowNarrowRight />
@@ -312,7 +325,7 @@ export default function Carousel({
                             ) : (
                               <button
                                 type="button"
-                                className="inline-flex items-center gap-2 px-3 py-2 rounded-2xl bg-white text-black text-xs sm:text-sm shadow ring-1 ring-black/5 hover:shadow-lg active:translate-y-px transition"
+                                className="inline-flex items-center gap-2 px-3 py-2 rounded-2xl bg-white text-black text-base sm:text-base shadow ring-1 ring-black/5 hover:shadow-lg active:translate-y-px transition"
                                 onClick={() => s.onClick?.()}
                               >
                                 {s.button}
@@ -334,11 +347,11 @@ export default function Carousel({
         <div className="pointer-events-none absolute inset-y-0 left-0 w-8 sm:w-12 bg-gradient-to-r from-neutral-950/70 to-transparent" />
         <div className="pointer-events-none absolute inset-y-0 right-0 w-8 sm:w-12 bg-gradient-to-l from-neutral-950/70 to-transparent" />
 
-        {/* Controles */}
+        {/* Controles (44px mínimo en mobile) */}
         <div className="pointer-events-none absolute inset-y-0 left-0 right-0 flex items-center justify-between p-2 sm:p-3">
           <button
             type="button"
-            className="pointer-events-auto w-10 h-10 md:w-12 md:h-12 grid place-items-center rounded-full bg-neutral-200/85 dark:bg-neutral-800/85 backdrop-blur focus:outline-none focus-visible:ring-2 ring-offset-2 ring-[#6D64F7] hover:-translate-y-0.5 active:translate-y-0.5 shadow transition"
+            className="pointer-events-auto w-11 h-11 md:w-12 md:h-12 grid place-items-center rounded-full bg-neutral-200/85 dark:bg-neutral-800/85 backdrop-blur focus:outline-none focus-visible:ring-2 ring-offset-2 ring-[#6D64F7] hover:-translate-y-0.5 active:translate-y-0.5 shadow transition"
             aria-label="Anterior"
             onClick={prev}
           >
@@ -346,7 +359,7 @@ export default function Carousel({
           </button>
           <button
             type="button"
-            className="pointer-events-auto w-10 h-10 md:w-12 md:h-12 grid place-items-center rounded-full bg-neutral-200/85 dark:bg-neutral-800/85 backdrop-blur focus:outline-none focus-visible:ring-2 ring-offset-2 ring-[#6D64F7] hover:-translate-y-0.5 active:translate-y-0.5 shadow transition"
+            className="pointer-events-auto w-11 h-11 md:w-12 md:h-12 grid place-items-center rounded-full bg-neutral-200/85 dark:bg-neutral-800/85 backdrop-blur focus:outline-none focus-visible:ring-2 ring-offset-2 ring-[#6D64F7] hover:-translate-y-0.5 active:translate-y-0.5 shadow transition"
             aria-label="Siguiente"
             onClick={next}
           >
@@ -378,10 +391,27 @@ export default function Carousel({
         })}
       </div>
 
+      {/* Fix iOS Safari: evitar zoom al tocar botones/inputs < 16px */}
+      <style jsx global>{`
+        @supports (-webkit-touch-callout: none) {
+          a,
+          button,
+          select,
+          input,
+          textarea {
+            font-size: 16px !important;
+          }
+        }
+      `}</style>
+
       <style jsx>{`
         @media (prefers-reduced-motion: reduce) {
-          ul { transition: none !important; }
-          figure { transition: none !important; }
+          ul {
+            transition: none !important;
+          }
+          figure {
+            transition: none !important;
+          }
         }
       `}</style>
     </section>
