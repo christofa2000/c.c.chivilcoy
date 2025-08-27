@@ -1,9 +1,15 @@
-'use client';
-import React, { useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
+"use client";
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
 
-function NavLinkButton({ href, children }: { href: string; children: React.ReactNode }) {
+function NavLinkButton({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) {
   return (
     <Link
       href={href}
@@ -14,10 +20,9 @@ function NavLinkButton({ href, children }: { href: string; children: React.React
         shadow-lg transition-all duration-300
         hover:bg-white hover:text-[#44209F]
         hover:scale-105 active:scale-95
-        focus:outline-none focus-visible:ring-2 ring-white ring-offset-2 ring-offset-[#44209F]
-        "
+        focus:outline-none focus-visible:ring-2 ring-white ring-offset-2 ring-offset-transparent
+      "
     >
-      {/* Glow suave alrededor */}
       <span
         aria-hidden
         className="
@@ -27,7 +32,6 @@ function NavLinkButton({ href, children }: { href: string; children: React.React
           group-hover:opacity-100
         "
       />
-      {/* Shine diagonal que cruza el botón */}
       <span
         aria-hidden
         className="
@@ -46,29 +50,58 @@ function NavLinkButton({ href, children }: { href: string; children: React.React
 
 export default function Header() {
   const [open, setOpen] = useState(false);
-  const menuItems = ['Inicio', 'Clases', 'Talleres', 'Kids', 'Colonia', 'Contacto'];
+  const [hidden, setHidden] = useState(false);
+  const menuItems = [
+    "Inicio",
+    "Clases",
+    "Talleres",
+    "Kids",
+    "Colonia",
+    "Contacto",
+  ];
 
-  // Menú dividido a los costados
+  // detectar scroll hacia abajo/arriba
+  useEffect(() => {
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const currY = window.scrollY;
+      if (currY > lastY && currY > 80) {
+        setHidden(true); // bajando → esconder
+      } else {
+        setHidden(false); // subiendo → mostrar
+      }
+      lastY = currY;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   const mid = Math.ceil(menuItems.length / 2);
   const leftItems = menuItems.slice(0, mid);
   const rightItems = menuItems.slice(mid);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-[#44209F] text-white shadow-lg">
-      {/* Desktop: grid 3 columnas (izq · logo · der) */}
+    <header
+      className={[
+        "w-full z-50 transition-transform duration-500",
+        hidden ? "-translate-y-full" : "translate-y-0",
+        "bg-transparent backdrop-blur-md",
+      ].join(" ")}
+    >
+      {/* Desktop */}
       <div className="hidden lg:grid grid-cols-[1fr_auto_1fr] items-center max-w-6xl mx-auto px-4 sm:px-6 py-2.5">
-        {/* Menú izquierdo */}
         <nav aria-label="Principal izquierda">
           <ul className="flex items-center justify-start gap-x-5 xl:gap-x-7">
             {leftItems.map((section) => (
               <li key={`left-${section}`}>
-                <NavLinkButton href={`#${section.toLowerCase()}`}>{section}</NavLinkButton>
+                <NavLinkButton href={`#${section.toLowerCase()}`}>
+                  {section}
+                </NavLinkButton>
               </li>
             ))}
           </ul>
         </nav>
 
-        {/* Logo centrado (más chico) */}
         <Link href="/" className="justify-self-center">
           <Image
             src="/events/fondo-arbol4.png"
@@ -76,24 +109,25 @@ export default function Header() {
             width={200}
             height={80}
             priority
-            className="w-20 md:w-24 lg:w-24 xl:w-28 h-auto"
-            sizes="(max-width: 768px) 5rem, (max-width: 1024px) 6rem, 7rem"
+            className="w-40 md:w-48 lg:w-56 xl:w-64 h-auto"
+            sizes="(max-width: 768px) 10rem, (max-width: 1024px) 12rem, 16rem"
           />
         </Link>
 
-        {/* Menú derecho */}
         <nav aria-label="Principal derecha" className="justify-self-end">
           <ul className="flex items-center justify-end gap-x-5 xl:gap-x-7">
             {rightItems.map((section) => (
               <li key={`right-${section}`}>
-                <NavLinkButton href={`#${section.toLowerCase()}`}>{section}</NavLinkButton>
+                <NavLinkButton href={`#${section.toLowerCase()}`}>
+                  {section}
+                </NavLinkButton>
               </li>
             ))}
           </ul>
         </nav>
       </div>
 
-      {/* Móvil: logo centrado + hamburguesa */}
+      {/* Móvil */}
       <div className="lg:hidden relative flex items-center justify-center px-4 sm:px-6 py-2.5">
         <Link href="/" className="block">
           <Image
@@ -102,8 +136,8 @@ export default function Header() {
             width={160}
             height={64}
             priority
-            className="w-20 h-auto"
-            sizes="(max-width: 768px) 5rem, 5rem"
+            className="w-32 sm:w-36 md:w-40 h-auto"
+            sizes="(max-width: 768px) 8rem, (max-width: 1024px) 9rem, 10rem"
           />
         </Link>
 
@@ -114,29 +148,45 @@ export default function Header() {
           aria-expanded={open}
           aria-controls="mobile-nav"
         >
-          <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-              d={open ? 'M6 18L18 6 M6 6l12 12' : 'M4 6h16 M4 12h16 M4 18h16'} />
+          <svg
+            className="w-9 h-9"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d={open ? "M6 18L18 6 M6 6l12 12" : "M4 6h16 M4 12h16 M4 18h16"}
+            />
           </svg>
         </button>
       </div>
 
-      {/* Menú móvil desplegable (debajo de la barra fija) */}
+      {/* Menú móvil centrado */}
       <nav
         id="mobile-nav"
         className={[
-          'lg:hidden fixed left-0 right-0 z-40',
-          'top-[64px]',
-          'bg-[#44209F] max-h-[calc(100vh-64px)] overflow-y-auto',
-          'transform transition-all duration-300',
-          open ? 'translate-y-0 opacity-100 pointer-events-auto'
-               : '-translate-y-4 opacity-0 pointer-events-none',
-        ].join(' ')}
+          "lg:hidden fixed left-0 right-0 z-40",
+          "top-[64px]",
+          "backdrop-blur-md bg-black/40",
+          "max-h-[calc(100vh-64px)] overflow-y-auto",
+          "transform transition-all duration-300",
+          open
+            ? "translate-y-0 opacity-100 pointer-events-auto"
+            : "-translate-y-4 opacity-0 pointer-events-none",
+        ].join(" ")}
       >
-        <ul className="flex flex-col items-center gap-2 p-4">
+        <ul className="flex flex-col items-center justify-center gap-3 p-6 text-center">
           {menuItems.map((section) => (
-            <li key={`mobile-${section}`} className="w-full">
-              <NavLinkButton href={`#${section.toLowerCase()}`}>{section}</NavLinkButton>
+            <li
+              key={`mobile-${section}`}
+              className="w-full flex justify-center"
+            >
+              <NavLinkButton href={`#${section.toLowerCase()}`}>
+                {section}
+              </NavLinkButton>
             </li>
           ))}
         </ul>

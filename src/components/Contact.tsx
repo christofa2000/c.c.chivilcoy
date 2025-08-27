@@ -14,18 +14,17 @@ import {
 } from "lucide-react";
 
 /* =========================================================
-   Utilidades
+   Tipos y constantes
    ========================================================= */
 type Msg = {
   id: string;
-  name?: string;
+  name?: string | null;
   text: string;
   emoji?: string;
-  createdAt: number;
+  createdAt: number; // la API devuelve number (Date.now())
   reactions: { heart: number; clap: number; star: number };
 };
 
-const LS_KEY = "ec_guestbook_msgs_v1";
 const LS_RATE_KEY = "ec_guestbook_lastPostAt";
 const MIN_INTERVAL_MS = 25_000;
 
@@ -34,27 +33,8 @@ const softShadow =
 const inShadow =
   "inset 2px 2px 6px rgba(0,0,0,0.06), inset -2px -2px 6px rgba(255,255,255,0.7)";
 
-const seeded: Msg[] = [
-  {
-    id: "seed-1",
-    name: "Sofi",
-    text: "¡Amé la clase abierta de danza! 💃✨",
-    emoji: "💜",
-    createdAt: Date.now() - 1000 * 60 * 60 * 24,
-    reactions: { heart: 6, clap: 3, star: 2 },
-  },
-  {
-    id: "seed-2",
-    name: "Mauro",
-    text: "La muestra de pintura estuvo increíble. ¡Gracias por el espacio! 🎨",
-    emoji: "🌟",
-    createdAt: Date.now() - 1000 * 60 * 60 * 8,
-    reactions: { heart: 2, clap: 5, star: 1 },
-  },
-];
-
 /* =========================================================
-   Componente principal
+   Página
    ========================================================= */
 export default function ContactoPage() {
   return (
@@ -147,7 +127,7 @@ function VisitanosCard() {
 }
 
 /* =========================================================
-   B) MURO DE MENSAJES + REACCIONES
+   B) MURO DE MENSAJES + REACCIONES (con API)
    ========================================================= */
 function Guestbook() {
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -156,47 +136,51 @@ function Guestbook() {
   const [emoji, setEmoji] = useState("🌟");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(true);
   const honeypotRef = useRef<HTMLInputElement | null>(null);
 
+  // Cargar desde la API
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(LS_KEY);
-      if (raw) {
-        const parsed: Msg[] = JSON.parse(raw);
-        setMessages(parsed);
-      } else {
-        setMessages(seeded);
-        localStorage.setItem(LS_KEY, JSON.stringify(seeded));
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/guestbook", { cache: "no-store" });
+        if (!res.ok) throw new Error("No se pudo cargar el muro");
+        const data = (await res.json()) as { messages: Msg[] };
+        if (!cancelled) setMessages(data.messages ?? []);
+      } catch (e: any) {
+        // fallback opcional si tenías seeded local
+        if (!cancelled) setMessages([]);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-    } catch {
-      setMessages(seeded);
-    }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(LS_KEY, JSON.stringify(messages));
-    } catch {}
-  }, [messages]);
-
-  const sorted = useMemo(() => {
-    return [...messages].sort((a, b) => b.createdAt - a.createdAt);
-  }, [messages]);
+  // Ordenar por fecha desc
+  const sorted = useMemo(
+    () => [...messages].sort((a, b) => b.createdAt - a.createdAt),
+    [messages]
+  );
 
   const tooSoon = () => {
     const last = Number(localStorage.getItem(LS_RATE_KEY) || "0");
     return Date.now() - last < MIN_INTERVAL_MS;
   };
 
-  const addMessage = (e: React.FormEvent) => {
+  const addMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     if (honeypotRef.current?.value) return;
-    if (!text.trim()) {
+    const clean = text.trim();
+    if (!clean) {
       setError("Escribí un mensajito 🙂");
       return;
     }
-    if (text.length > 240) {
+    if (clean.length > 240) {
       setError("Máximo 240 caracteres.");
       return;
     }
@@ -204,28 +188,55 @@ function Guestbook() {
       setError("Esperá unos segundos antes de enviar otro mensaje 🙏");
       return;
     }
+
     setBusy(true);
 
-    const msg: Msg = {
-      id: `m-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-      name: name.trim() || undefined,
-      text: text.trim(),
+    // Optimistic
+    const tempId = `tmp-${Date.now()}`;
+    const optimistic: Msg = {
+      id: tempId,
+      name: name.trim() || null,
+      text: clean,
       emoji,
       createdAt: Date.now(),
       reactions: { heart: 0, clap: 0, star: 0 },
     };
+    setMessages((prev) => [optimistic, ...prev]);
 
-    setMessages((prev) => [msg, ...prev]);
-    setName("");
-    setText("");
-    setEmoji("🌟");
-    localStorage.setItem(LS_RATE_KEY, String(Date.now()));
-    setBusy(false);
+    try {
+      const res = await fetch("/api/guestbook", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, text: clean, emoji }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        // rollback
+        setMessages((prev) => prev.filter((m) => m.id !== tempId));
+        throw new Error(data?.error || "No se pudo publicar");
+      }
+
+      const saved = data.message as Msg;
+      // reemplazar el temp por el real
+      setMessages((prev) => prev.map((m) => (m.id === tempId ? saved : m)));
+
+      setName("");
+      setText("");
+      setEmoji("🌟");
+      localStorage.setItem(LS_RATE_KEY, String(Date.now()));
+    } catch (e: any) {
+      setError(e?.message || "Error al publicar");
+    } finally {
+      setBusy(false);
+    }
   };
 
-  const reactTo = (id: string, type: keyof Msg["reactions"]) => {
+  const reactTo = async (id: string, type: keyof Msg["reactions"]) => {
     const votedKey = `ec_guestbook_voted_${id}_${type}`;
     if (localStorage.getItem(votedKey)) return;
+
+    // optimistic
     setMessages((prev) =>
       prev.map((m) =>
         m.id === id
@@ -237,6 +248,46 @@ function Guestbook() {
       )
     );
     localStorage.setItem(votedKey, "1");
+
+    try {
+      const res = await fetch("/api/guestbook", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, type }),
+      });
+      if (!res.ok) {
+        // revertir si falla
+        localStorage.removeItem(votedKey);
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === id
+              ? {
+                  ...m,
+                  reactions: {
+                    ...m.reactions,
+                    [type]: Math.max(0, m.reactions[type] - 1),
+                  },
+                }
+              : m
+          )
+        );
+      }
+    } catch {
+      localStorage.removeItem(votedKey);
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === id
+            ? {
+                ...m,
+                reactions: {
+                  ...m.reactions,
+                  [type]: Math.max(0, m.reactions[type] - 1),
+                },
+              }
+            : m
+        )
+      );
+    }
   };
 
   return (
@@ -282,6 +333,44 @@ function Guestbook() {
           style={{ boxShadow: inShadow }}
           aria-label="Elegí un emoji"
         >
+          {[
+            "🌟",
+            "💜",
+            "🎨",
+            "🎭",
+            "🎶",
+            "👏",
+            "🔥",
+            "😊",
+            "📚",
+            "🕺",
+            "💃",
+            "🎤",
+            "🥁",
+            "🎸",
+            "🎻",
+            "🎷",
+            "🎹",
+            "🖌️",
+            "🖼️",
+            "✏️",
+            "📖",
+            "🎧",
+            "🎬",
+            "🍀",
+            "✨",
+            "🌈",
+            "☀️",
+            "🌙",
+            "🌻",
+            "🌸",
+            "🪘",
+            "🥳",
+          ].map((em) => (
+            <option key={em} value={em}>
+              {em}
+            </option>
+          ))}
           {["🌟", "💜", "🎨", "🎭", "🎶", "👏", "🔥", "😊"].map((em) => (
             <option key={em} value={em}>
               {em}
@@ -306,10 +395,11 @@ function Guestbook() {
           style={{ boxShadow: softShadow }}
         >
           <Send className="w-4 h-4" />
-          Publicar
+          {busy ? "Publicando..." : "Publicar"}
         </button>
       </form>
 
+      {/* Errores */}
       {error && (
         <div className="mb-5 text-sm text-pink-700 bg-pink-50 border border-pink-200 rounded-xl px-3 py-2">
           {error}
@@ -317,47 +407,51 @@ function Guestbook() {
       )}
 
       {/* Lista */}
-      <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {sorted.map((m) => (
-          <li
-            key={m.id}
-            className="rounded-2xl p-4 bg-white/80 backdrop-blur ring-1 ring-black/10 text-neutral-900"
-            style={{ boxShadow: softShadow }}
-          >
-            <div className="flex items-center gap-2 text-2xl">
-              {m.emoji ?? "🌟"}
-            </div>
-            <p className="mt-2 leading-relaxed">{m.text}</p>
-            <div className="mt-2 text-sm text-neutral-600">
-              — {m.name ?? "Anónimo"} · {fmtTimeAgo(m.createdAt)}
-            </div>
+      {loading ? (
+        <p className="text-neutral-600">Cargando mensajes…</p>
+      ) : (
+        <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {sorted.map((m) => (
+            <li
+              key={m.id}
+              className="rounded-2xl p-4 bg-white/80 backdrop-blur ring-1 ring-black/10 text-neutral-900"
+              style={{ boxShadow: softShadow }}
+            >
+              <div className="flex items-center gap-2 text-2xl">
+                {m.emoji ?? "🌟"}
+              </div>
+              <p className="mt-2 leading-relaxed">{m.text}</p>
+              <div className="mt-2 text-sm text-neutral-600">
+                — {m.name ?? "Anónimo"} · {fmtTimeAgo(m.createdAt)}
+              </div>
 
-            <div className="mt-3 flex items-center gap-3">
-              <ReactionButton
-                icon={<Heart className="w-4 h-4" />}
-                label="heart"
-                count={m.reactions.heart}
-                onClick={() => reactTo(m.id, "heart")}
-                colorClass="text-pink-600"
-              />
-              <ReactionButton
-                icon={<ThumbsUp className="w-4 h-4" />}
-                label="clap"
-                count={m.reactions.clap}
-                onClick={() => reactTo(m.id, "clap")}
-                colorClass="text-fuchsia-600"
-              />
-              <ReactionButton
-                icon={<Star className="w-4 h-4" />}
-                label="star"
-                count={m.reactions.star}
-                onClick={() => reactTo(m.id, "star")}
-                colorClass="text-violet-600"
-              />
-            </div>
-          </li>
-        ))}
-      </ul>
+              <div className="mt-3 flex items-center gap-3">
+                <ReactionButton
+                  icon={<Heart className="w-4 h-4" />}
+                  label="heart"
+                  count={m.reactions.heart}
+                  onClick={() => reactTo(m.id, "heart")}
+                  colorClass="text-pink-600"
+                />
+                <ReactionButton
+                  icon={<ThumbsUp className="w-4 h-4" />}
+                  label="clap"
+                  count={m.reactions.clap}
+                  onClick={() => reactTo(m.id, "clap")}
+                  colorClass="text-fuchsia-600"
+                />
+                <ReactionButton
+                  icon={<Star className="w-4 h-4" />}
+                  label="star"
+                  count={m.reactions.star}
+                  onClick={() => reactTo(m.id, "star")}
+                  colorClass="text-violet-600"
+                />
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
