@@ -13,6 +13,7 @@ Landing page **responsive** para el centro cultural **Espacio de Arte Chivilcoy*
 - [Actualizaciones Recientes](#actualizaciones-recientes)
 - [Instalación](#instalación)
 - [Uso](#uso)
+- [Tests](#tests)
 - [Estructura de Carpetas](#estructura-de-carpetas)
 - [Despliegue](#despliegue)
 - [Contribuir](#contribuir)
@@ -89,5 +90,34 @@ El diseño está pensado para ser **mobile-first**, rápido y fácil de mantener
 git clone https://github.com/TU_USUARIO/espacio-arte-chivilcoy.git
 cd espacio-arte-chivilcoy
 npm install
+```
+
+---
+
+## 🚀 Uso
+
+Para iniciar el servidor de desarrollo:
+
+```bash
 npm run dev
+```
+
+Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
+
+---
+
+## ✅ Tests
+
+Este proyecto utiliza [Jest](https://jestjs.io/) y [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) para las pruebas unitarias y de componentes.
+
+Para ejecutar la suite de tests una vez:
+
+```bash
+npm run test
+```
+
+Para ejecutar los tests en modo interactivo (watch mode):
+
+```bash
+npm run test:watch
 ```

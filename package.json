@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "npx jest",
+    "test:watch": "npx jest --watch"
   },
   "dependencies": {
     "@netlify/blobs": "^10.0.8",
@@ -25,12 +27,19 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4.1.11",
+    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/react": "^15.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "canvas": "^3.2.0",
     "eslint": "^9",
     "eslint-config-next": "15.4.3",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "tailwindcss": "^4.1.11",
+    "ts-jest": "^29.1.2",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }

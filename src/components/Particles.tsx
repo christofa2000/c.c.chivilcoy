@@ -113,6 +113,7 @@ export default function Particles() {
     <canvas
       ref={ref}
       aria-hidden="true"
+      data-testid="particles-canvas"
       style={{
         position: "fixed",
         inset: 0,
